@@ -1005,14 +1005,15 @@ def render_fib_table(fibs: dict, current_price: float, atr: float):
         "Fib 23.6%": {"border": "#64B5F6", "glow": "rgba(100,181,246,0.22)", "bg": "rgba(100,181,246,0.08)"},
         "Fib 0%":    {"border": "#9575CD", "glow": "rgba(149,117,205,0.22)", "bg": "rgba(149,117,205,0.08)"},
     }
-    FIB_EMOJI = {
-        "Fib 100%":  "🏔️", "Fib 78.6%": "🛡️", "Fib 61.8%": "🥇",
-        "Fib 50.0%": "🥈", "Fib 38.2%": "🥉", "Fib 23.6%": "⚡", "Fib 0%": "⚠️",
-    }
-    FIB_ROLE = {
-        "Fib 100%":  "Swing High", "Fib 78.6%": "แนวป้องกัน",
-        "Fib 61.8%": "Golden Zone ★", "Fib 50.0%": "จุดกลาง",
-        "Fib 38.2%": "แนวรับตื้น", "Fib 23.6%": "Shallow Dip", "Fib 0%": "Swing Low",
+    # ป้ายกำกับบอก Action ทันที
+    FIB_LABELS = {
+        "Fib 100%":  ("🏔️", "100.0%", "ยอดเขา",          "ทะลุคือไปต่อ"),
+        "Fib 78.6%": ("🛡️", "78.6%",  "แนวป้องกันสุดท้าย","หลุดคือพัง"),
+        "Fib 61.8%": ("🥇", "61.8%",  "โซนทองคำ",          "สไนเปอร์ซุ่มซื้อ"),
+        "Fib 50.0%": ("🥈", "50.0%",  "จุดวัดใจครึ่งทาง",  "ยืนได้คือยังแข็ง"),
+        "Fib 38.2%": ("🥉", "38.2%",  "แนวรับตื้น",         "เทรนด์ยังแกร่ง"),
+        "Fib 23.6%": ("⚡", "23.6%",  "แนวรับซุปเปอร์ซิ่ง", "พักสั้น ต่อขึ้น"),
+        "Fib 0%":    ("⚠️", "0.0%",   "จุดต่ำสุด",          "ก้นเหว / เสียทรง"),
     }
 
     valid = [(k, fibs[k]) for k in FIB_ORDER if k in fibs and fibs[k] is not None and not pd.isna(fibs[k])]
@@ -1022,6 +1023,7 @@ def render_fib_table(fibs: dict, current_price: float, atr: float):
     cards_html = ""
     for key, val in valid:
         ac = FIB_ACCENT.get(key, {"border":"#a78bfa","glow":"rgba(167,139,250,0.20)","bg":"rgba(167,139,250,0.08)"})
+        emoji, pct_label, role_main, role_action = FIB_LABELS.get(key, ("📌","","",""))
         dist_pct  = (current_price - val) / val * 100
         dist_abs  = current_price - val
         is_near   = abs(dist_abs) <= atr * 0.55
@@ -1029,23 +1031,20 @@ def render_fib_table(fibs: dict, current_price: float, atr: float):
         dist_color = "#34D399" if dist_pct >= 0 else "#F87171"
         sign = "+" if dist_pct >= 0 else ""
         above_below = "เหนือ ↑" if dist_pct >= 0 else "ใต้ ↓"
-        emoji = FIB_EMOJI.get(key, "📌")
-        role  = FIB_ROLE.get(key, "")
-        label = key.replace("Fib ", "")
 
         # กรอบพิเศษเมื่อราคาอยู่ใกล้
         if is_near:
             border_style = f"border:1.5px solid {ac['border']};box-shadow:0 0 0 2px {ac['glow']},0 6px 24px rgba(0,0,0,0.32),inset 0 1px 0 rgba(255,255,255,0.12);"
-            near_chip = f'<span style="display:inline-block;font-size:0.58rem;font-weight:800;color:#fbbf24;background:rgba(251,191,36,0.18);border:1px solid rgba(251,191,36,0.45);border-radius:5px;padding:1px 6px;margin-left:5px;vertical-align:middle;">📍 ใกล้</span>'
+            near_chip = '<span style="display:inline-block;font-size:0.58rem;font-weight:800;color:#fbbf24;background:rgba(251,191,36,0.18);border:1px solid rgba(251,191,36,0.45);border-radius:5px;padding:1px 6px;margin-left:5px;vertical-align:middle;">📍 ใกล้</span>'
         else:
-            border_style = f"border:1px solid rgba(255,255,255,0.11);"
+            border_style = "border:1px solid rgba(255,255,255,0.11);"
             near_chip = ""
 
-        # Golden Zone label พิเศษ
+        # role_main: สี accent / Golden ใช้สีชมพูเข้ม
         if is_golden:
-            role_display = f'<span style="color:#F48FB1;font-weight:800;">{role}</span>'
+            role_main_html = f'<span style="color:#F48FB1;font-weight:800;">{role_main}</span>'
         else:
-            role_display = role
+            role_main_html = f'<span style="color:{ac["border"]};font-weight:700;">{role_main}</span>'
 
         # ราคา format
         if val >= 10000:   price_fmt = f"{val:,.0f}"
@@ -1060,26 +1059,28 @@ def render_fib_table(fibs: dict, current_price: float, atr: float):
      {border_style}
      transition:transform 0.18s ease,box-shadow 0.18s ease;
      border-left:3px solid {ac['border']};">
-  <!-- header row -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-    <span style="font-size:0.68rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;
-          color:{ac['border']};opacity:0.9;">{label}</span>
-    <span style="font-size:0.80rem;">{emoji}</span>
+  <!-- header: level % + emoji -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+    <span style="font-size:0.68rem;font-weight:800;letter-spacing:0.07em;
+          color:{ac['border']};">{pct_label}</span>
+    <span style="font-size:0.85rem;">{emoji}</span>
   </div>
   <!-- ราคา -->
   <div style="font-size:1.28rem;font-weight:900;color:#F5F5F7;letter-spacing:-0.02em;
        line-height:1;font-variant-numeric:tabular-nums;margin-bottom:5px;">
     {price_fmt}{near_chip}
   </div>
-  <!-- ระยะห่างจากราคาปัจจุบัน -->
-  <div style="font-size:0.82rem;font-weight:700;color:{dist_color};margin-bottom:5px;">
+  <!-- ระยะห่าง -->
+  <div style="font-size:0.82rem;font-weight:700;color:{dist_color};margin-bottom:6px;">
     {above_below}&nbsp;{sign}{abs(dist_pct):.1f}%
-    <span style="font-size:0.70rem;font-weight:500;color:rgba(235,235,245,0.35);margin-left:4px;">
+    <span style="font-size:0.68rem;font-weight:500;color:rgba(235,235,245,0.32);margin-left:3px;">
       ({sign}{abs(dist_abs):.2f})
     </span>
   </div>
-  <!-- role label -->
-  <div style="font-size:0.70rem;color:rgba(235,235,245,0.45);line-height:1.3;">{role_display}</div>
+  <!-- role name -->
+  <div style="font-size:0.72rem;margin-bottom:2px;line-height:1.3;">{role_main_html}</div>
+  <!-- action hint -->
+  <div style="font-size:0.64rem;color:rgba(235,235,245,0.38);line-height:1.3;">{role_action}</div>
 </div>"""
 
     # 7 cards ใน responsive grid
@@ -1600,28 +1601,30 @@ if show_analysis:
     # วาง anchor ก่อน render ผล
     st.markdown('<div id="gm-result-anchor" style="scroll-margin-top:16px;"></div>', unsafe_allow_html=True)
 
-    # SCROLL FIX: ใช้ _stc.html เพราะสร้าง iframe จริงทุกครั้ง ไม่ถูก deduplicate
-    # JS ใน iframe เข้าถึง window.parent ได้เสมอ
+    # SCROLL FIX: ใส่ timestamp นาโนวินาทีเป็น comment ใน JS
+    # → หน้าตา HTML ต่างกันทุกครั้ง Streamlit ไม่ cache / deduplicate
     if st.session_state.should_scroll:
         st.session_state.should_scroll = False
-        _stc.html("""
+        _nonce = _time.time_ns()          # เปลี่ยนทุก ms → JS ไม่ถูกข้ามแม้กด 10 ครั้งติด
+        _stc.html(f"""
 <script>
-(function(){
+// nonce:{_nonce}
+(function(){{
   var tries = 0;
-  function go(){
-    try {
+  function go(){{
+    try {{
       var docs = [];
       if(window.parent && window.parent.document) docs.push(window.parent.document);
       docs.push(document);
-      for(var i=0;i<docs.length;i++){
+      for(var i=0;i<docs.length;i++){{
         var el = docs[i].getElementById('gm-result-anchor');
-        if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); return; }
-      }
-    } catch(e){}
+        if(el){{ el.scrollIntoView({{behavior:'smooth', block:'start'}}); return; }}
+      }}
+    }} catch(e){{}}
     if(tries++ < 40) setTimeout(go, 100);
-  }
-  setTimeout(go, 300);
-})();
+  }}
+  setTimeout(go, 320);
+}})();
 </script>""", height=0, scrolling=False)
 
     with st.spinner(f"กำลังดึงข้อมูลของ {target_stock}..."):
