@@ -762,7 +762,7 @@ def favorite_button_label(ticker):
 
 @st.cache_data(ttl=300)
 def load_stock_history(ticker):
-    return yf.Ticker(ticker).history(period="2y")
+    return yf.Ticker(ticker).history(period="max")
 
 
 @st.cache_data(ttl=300)
