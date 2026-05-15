@@ -481,75 +481,82 @@ hr { border-color: rgba(255,255,255,0.08) !important; }
 .gm-header-sub   { color: rgba(235,235,245,0.45) !important; }
 .gm-card-label   { color: #FFFFFF !important; text-shadow: 0 1px 3px rgba(0,0,0,0.45) !important; }
 
-/* ══════════════════════════════════════════════════════
-   MOBILE — ชนขอบจอทั้งแนวตั้งและแนวนอน
-   ══════════════════════════════════════════════════════ */
-@media (max-width: 768px) {
-    /* ล้างทุก margin/padding ที่ Streamlit ใส่มา */
-    html, body {
-        margin: 0 !important; padding: 0 !important;
-        overflow-x: hidden !important;
-        width: 100vw !important; max-width: 100vw !important;
-    }
-    /* wrapper ทุกชั้นของ Streamlit */
-    [data-testid="stApp"],
-    [data-testid="stAppViewContainer"],
-    [data-testid="stMain"],
-    [data-testid="stMainBlockContainer"],
-    [data-testid="stVerticalBlock"],
-    section.main, .main {
-        padding: 0 !important; margin: 0 !important;
-        width: 100vw !important; max-width: 100vw !important;
-        box-sizing: border-box !important;
-    }
-    /* content block — เว้น padding น้อยที่สุด */
-    .block-container, [data-testid="block-container"] {
-        padding: 0.4rem 0.4rem 2rem 0.4rem !important;
+/* ── RESPONSIVE MOBILE (บังคับยืดเต็มจอสุดหลอด ขอบชนขอบ 100%) ────────────────── */
+@media (max-width: 950px) {
+    /* 1. สาดสีดำทับชั้นล่างสุดของเว็บ กันขอบขาวโผล่เวลาลากจอ */
+    html, body, [data-testid="stApp"], [data-testid="stAppViewContainer"], section.main {
+        background-color: #0a0f18 !important;
         margin: 0 !important;
-        width: 100vw !important; max-width: 100vw !important;
-        box-sizing: border-box !important;
+        padding: 0 !important;
         overflow-x: hidden !important;
+        max-width: 100% !important;
+        width: 100% !important;
     }
-    /* ทุก element ไม่ให้ล้นจอ */
-    *, *::before, *::after { box-sizing: border-box !important; }
-    .gm-header-wrap  { padding: 28px 8px 12px !important; }
+    /* 2. ทลายกรอบ Streamlit สั่ง Padding ซ้าย-ขวา ให้เป็น 0 เด็ดขาด */
+    .block-container, [data-testid="block-container"] {
+        padding-top: 1rem !important;
+        padding-bottom: 2rem !important;
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+    * { box-sizing: border-box !important; }
+    .gm-header-wrap  { padding: 10px 4px 14px !important; }
     .gm-header-title { font-size: 1.8rem !important; }
-    [data-testid="stTabs"] button[role="tab"] {
-        font-size: 0.80rem !important; padding: 6px 7px !important; margin: 0 1px !important;
+    [data-testid="stTabs"] button[role="tab"] { font-size: 0.82rem !important; padding: 6px 8px !important; margin: 0 2px !important; }
+    /* 3. ขยับเนื้อหาด้านในไม่ให้ข้อความชิดขอบจอจนตกขอบเกินไป */
+    [data-testid="stMetric"], .gm-card {
+        padding: 12px 14px !important;
+        margin: 0 4px !important;
     }
-    [data-testid="stMetric"] { padding: 12px 14px !important; }
-    /* ปุ่มปักหมุดเลื่อน scroll ได้ */
+    [data-testid="stHorizontalBlock"] {
+        gap: 8px !important;
+        row-gap: 8px !important;
+        column-gap: 8px !important;
+        margin-bottom: 8px !important;
+        width: 100% !important;
+        padding: 0 4px !important;
+    }
+    [data-testid="stColumn"] {
+        padding: 0 !important;
+        margin-bottom: 8px !important;
+    }
     [data-testid="stMarkdown"]:has(#gm-fav-anchor) + [data-testid="stHorizontalBlock"] {
         flex-wrap: nowrap !important; overflow-x: auto !important;
+        margin-bottom: 6px !important;
+        padding: 0 !important;
     }
 }
 
-/* ── แนวตั้ง (Portrait) — stack columns ── */
+/* ── จอมือถือ: แนวตั้ง (Portrait) ── */
 @media (max-width: 768px) and (orientation: portrait) {
     [data-testid="stHorizontalBlock"] {
         flex-direction: column !important; align-items: stretch !important;
-        gap: 0.4rem !important; width: 100% !important;
     }
     [data-testid="stColumn"] {
         width: 100% !important; min-width: 100% !important; max-width: 100% !important;
-        box-sizing: border-box !important;
     }
 }
 
-/* ── แนวนอน (Landscape) — 2 col layout ── */
+/* ── จอมือถือ: แนวนอน (Landscape) ── */
 @media (max-width: 950px) and (orientation: landscape) {
     .block-container, [data-testid="block-container"] {
-        padding: 0.2rem 0.5rem 1.5rem 0.5rem !important;
+        padding: 0.5rem 0px 1.5rem 0px !important;
     }
-    .gm-header-title { font-size: 1.3rem !important; }
+    .gm-header-title { font-size: 1.4rem !important; }
     [data-testid="stHorizontalBlock"] {
-        flex-direction: row !important; flex-wrap: wrap !important;
-        align-items: stretch !important; gap: 6px !important;
+        display: flex !important; flex-direction: row !important;
+        flex-wrap: wrap !important; align-items: stretch !important;
+        padding: 0 6px !important;
     }
     [data-testid="stColumn"] {
         flex: 1 1 calc(50% - 8px) !important;
-        min-width: 140px !important; width: auto !important;
-        box-sizing: border-box !important;
+        min-width: 200px !important;
+        max-width: calc(50% - 4px) !important;
     }
     .fib-grid { grid-template-columns: repeat(4, 1fr) !important; }
 }
@@ -1649,6 +1656,8 @@ for _qcol, _qt in zip(_qcols, quick_tickers):
         st.rerun()
 
 # ── Search input + scan button ────────────────────────────────────
+# Enter key: Streamlit text_input triggers rerun on Enter automatically
+# เราเช็คว่า search_box มีค่า + ไม่ใช่ blank → สแกนเลย (ไม่ต้องกดปุ่ม)
 _sc1, _sc2 = st.columns([4, 1])
 _sc1.text_input("🔍", placeholder=placeholder, key="search_box", label_visibility="collapsed")
 scan_btn = _sc2.button("🚀 สแกน", use_container_width=True, type="primary")
@@ -1667,12 +1676,22 @@ if is_thai and _raw and not _raw.upper().endswith(".BK"):
 else:
     target_stock = _raw
 
-if (scan_btn or auto_scan) and target_stock:
+# Enter key: ถ้า typed ตรงกับ target และยังไม่ได้สแกน → trigger อัตโนมัติ
+# (Streamlit rerun เมื่อ text_input เปลี่ยนหรือกด Enter)
+_enter_triggered = (
+    bool(_typed)
+    and not scan_btn
+    and not auto_scan
+    and target_stock != st.session_state.current_stock
+)
+
+if (scan_btn or auto_scan or _enter_triggered) and target_stock:
     st.session_state.current_stock = target_stock
-    st.session_state.should_scroll = True   # FIX: set scroll flag เมื่อ scan button กด
+    st.session_state.should_scroll = True
 
 show_analysis = bool(target_stock) and (
-    scan_btn or auto_scan or st.session_state.current_stock == target_stock
+    scan_btn or auto_scan or _enter_triggered
+    or st.session_state.current_stock == target_stock
 )
 
 # ══════════════════════════════════════════════════════════════════
