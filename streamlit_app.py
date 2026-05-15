@@ -469,55 +469,49 @@ hr { border-color: rgba(255,255,255,0.08) !important; }
 .gm-header-sub   { color: rgba(235,235,245,0.45) !important; }
 .gm-card-label   { color: #FFFFFF !important; text-shadow: 0 1px 3px rgba(0,0,0,0.45) !important; }
 
-/* ── PORTRAIT MOBILE ─────────────────────────────────────── */
-@media (max-width: 768px) and (orientation: portrait) {
-    html, body { margin: 0 !important; padding: 0 !important; overflow-x: hidden !important; }
+/* ── RESPONSIVE MOBILE ─────────────────────────────────────── */
+@media (max-width: 768px) {
+    html, body { overflow-x: hidden !important; max-width: 100vw !important; }
     .block-container, [data-testid="block-container"] {
-        padding: 0.4rem 0.4rem 2rem 0.4rem !important; margin: 0 !important;
-        max-width: 100vw !important; width: 100vw !important;
+        padding: 0.5rem 0.5rem 2rem 0.5rem !important;
+        max-width: 100vw !important; overflow-x: hidden !important;
+        box-sizing: border-box !important;
     }
+    /* บังคับไม่ให้กรอบใดๆ ทะลุขอบจอ */
+    * { box-sizing: border-box !important; }
+    .gm-header-wrap  { padding: 30px 6px 14px !important; }
+    .gm-header-title { font-size: 1.8rem !important; }
+    [data-testid="stTabs"] button[role="tab"] { font-size: 0.82rem !important; padding: 6px 8px !important; margin: 0 2px !important; }
+    [data-testid="stMetric"] { padding: 12px 14px !important; }
+    /* ให้ปุ่ม Nuki ปักหมุดเลื่อนซ้ายขวาได้เวลาล้น */
+    [data-testid="stMarkdown"]:has(#gm-fav-anchor) + [data-testid="stHorizontalBlock"] {
+        flex-wrap: nowrap !important; overflow-x: auto !important;
+    }
+}
+
+/* ── แนวตั้ง (Portrait) ── */
+@media (max-width: 768px) and (orientation: portrait) {
     [data-testid="stHorizontalBlock"] {
         flex-direction: column !important; align-items: stretch !important;
         gap: 0.5rem !important; width: 100% !important;
     }
     [data-testid="stColumn"] {
         width: 100% !important; min-width: 100% !important; max-width: 100% !important;
-        flex: 0 0 auto !important; box-sizing: border-box !important;
     }
-    .gm-header-wrap  { padding: 44px 6px 14px !important; }
-    .gm-header-title { font-size: 2.0rem !important; }
-    [data-testid="stTabs"] button[role="tab"] { font-size: 0.82rem !important; padding: 8px 10px !important; }
-    [data-testid="stMetric"] { padding: 12px 14px !important; }
-    [data-testid="stMarkdown"]:has(#gm-fav-anchor) + [data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
 }
-@media (max-width: 480px) and (orientation: portrait) {
-    .block-container, [data-testid="block-container"] { padding: 0.25rem 0.35rem 2rem 0.35rem !important; }
-    .gm-header-title { font-size: 1.75rem !important; }
-    [data-testid="stTabs"] button[role="tab"] { font-size: 0.75rem !important; padding: 7px 8px !important; }
-}
-/* ── LANDSCAPE MOBILE — แนวนอน ──────────────────────────── */
-@media (max-height: 500px) and (orientation: landscape) {
-    html, body { overflow-x: hidden !important; overflow-y: auto !important; }
-    .block-container, [data-testid="block-container"] {
-        padding: 0.3rem 0.6rem 1.5rem 0.6rem !important;
-        max-width: 100vw !important; width: 100vw !important;
-    }
-    /* แนวนอน: columns วางข้างกันได้ ไม่ stack */
+
+/* ── แนวนอน (Landscape) ── */
+@media (max-width: 950px) and (orientation: landscape) {
+    .block-container, [data-testid="block-container"] { padding: 0.2rem 1rem 1.5rem 1rem !important; }
+    .gm-header-title { font-size: 1.4rem !important; }
     [data-testid="stHorizontalBlock"] {
         flex-direction: row !important; flex-wrap: wrap !important;
-        align-items: flex-start !important; gap: 6px !important;
+        align-items: stretch !important; gap: 8px !important;
     }
     [data-testid="stColumn"] {
-        flex: 1 1 auto !important; min-width: 120px !important;
-        max-width: none !important; width: auto !important;
+        flex: 1 1 calc(50% - 10px) !important;
+        min-width: 150px !important; width: auto !important;
     }
-    .gm-header-wrap  { padding: 8px 6px 8px !important; }
-    .gm-header-title { font-size: 1.4rem !important; }
-    .gm-header-sub   { font-size: 0.72rem !important; }
-    /* tabs เล็กลงนิดหน่อย */
-    [data-testid="stTabs"] button[role="tab"] { font-size: 0.76rem !important; padding: 6px 9px !important; }
-    [data-testid="stMetric"] { padding: 10px 12px !important; }
-    /* fib grid 4 col ในแนวนอน */
     .fib-grid { grid-template-columns: repeat(4, 1fr) !important; }
 }
 </style>
@@ -648,8 +642,8 @@ _stc.html("""
 (function(){
   var d = window.parent.document; var w = window.parent;
   var vp = d.querySelector('meta[name="viewport"]');
-  if(vp) vp.setAttribute('content','width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover');
-  else { var m=d.createElement('meta'); m.name='viewport'; m.content='width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover'; d.head.appendChild(m); }
+  if(vp) vp.setAttribute('content','width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover');
+  else { var m=d.createElement('meta'); m.name='viewport'; m.content='width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover'; d.head.appendChild(m); }
   if(w.history&&w.history.scrollRestoration){ w.history.scrollRestoration='manual'; }
   d.addEventListener('click',function(ev){ var a=ev.target.closest('a'); if(a){ var h=a.getAttribute('href'); if(h==='#'||h===''||h===null){ ev.preventDefault(); ev.stopPropagation(); } }},true);
   function hideFooter(){
@@ -672,19 +666,7 @@ _stc.html("""
      '[data-testid="block-container"]','[data-testid="stVerticalBlock"]','.block-container','section.main'
     ].forEach(function(sel){ d.querySelectorAll(sel).forEach(function(el){ el.style.setProperty('background','transparent','important'); el.style.setProperty('background-color','transparent','important'); }); });
   }
-  function stackCols(){
-    // แนวนอน (landscape) ไม่ต้อง stack columns
-    if(w.innerWidth > 768 || (w.innerHeight < 500 && w.innerWidth > w.innerHeight)) return;
-    d.querySelectorAll('[data-testid="stHorizontalBlock"]').forEach(function(blk){
-      blk.style.setProperty('display','flex','important'); blk.style.setProperty('flex-direction','column','important');
-      blk.style.setProperty('align-items','stretch','important'); blk.style.setProperty('width','100%','important');
-      blk.querySelectorAll('[data-testid="stColumn"]').forEach(function(col){
-        col.style.setProperty('width','100%','important'); col.style.setProperty('min-width','100%','important');
-        col.style.setProperty('max-width','100%','important'); col.style.setProperty('flex','0 0 auto','important');
-      });
-    });
-  }
-  function runAll(){ hideFooter(); fixBg(); stackCols(); }
+  function runAll(){ hideFooter(); fixBg(); }
   runAll(); w.addEventListener('resize',runAll);
   new MutationObserver(runAll).observe(d.body,{childList:true,subtree:true});
 })();
