@@ -738,7 +738,7 @@ def save_favorites(favorites):
 def load_favorite_snapshot_data(ticker):
     try:
         df = yf.Ticker(ticker).history(period="5d")
-        if df is None or df.empty or len(df) < 2: return None
+        if df is None or df.empty or len(df) < 1: return None
         price = float(df["Close"].iloc[-1])
         prev  = float(df["Close"].iloc[-2])
         pct   = (price - prev) / prev * 100 if prev else 0.0
