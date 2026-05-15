@@ -469,7 +469,8 @@ hr { border-color: rgba(255,255,255,0.08) !important; }
 .gm-header-sub   { color: rgba(235,235,245,0.45) !important; }
 .gm-card-label   { color: #FFFFFF !important; text-shadow: 0 1px 3px rgba(0,0,0,0.45) !important; }
 
-@media (max-width: 768px) {
+/* ── PORTRAIT MOBILE ─────────────────────────────────────── */
+@media (max-width: 768px) and (orientation: portrait) {
     html, body { margin: 0 !important; padding: 0 !important; overflow-x: hidden !important; }
     .block-container, [data-testid="block-container"] {
         padding: 0.4rem 0.4rem 2rem 0.4rem !important; margin: 0 !important;
@@ -488,12 +489,36 @@ hr { border-color: rgba(255,255,255,0.08) !important; }
     [data-testid="stTabs"] button[role="tab"] { font-size: 0.82rem !important; padding: 8px 10px !important; }
     [data-testid="stMetric"] { padding: 12px 14px !important; }
     [data-testid="stMarkdown"]:has(#gm-fav-anchor) + [data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
-    .fib-desc { display: none; }
 }
-@media (max-width: 480px) {
+@media (max-width: 480px) and (orientation: portrait) {
     .block-container, [data-testid="block-container"] { padding: 0.25rem 0.35rem 2rem 0.35rem !important; }
     .gm-header-title { font-size: 1.75rem !important; }
     [data-testid="stTabs"] button[role="tab"] { font-size: 0.75rem !important; padding: 7px 8px !important; }
+}
+/* ── LANDSCAPE MOBILE — แนวนอน ──────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+    html, body { overflow-x: hidden !important; overflow-y: auto !important; }
+    .block-container, [data-testid="block-container"] {
+        padding: 0.3rem 0.6rem 1.5rem 0.6rem !important;
+        max-width: 100vw !important; width: 100vw !important;
+    }
+    /* แนวนอน: columns วางข้างกันได้ ไม่ stack */
+    [data-testid="stHorizontalBlock"] {
+        flex-direction: row !important; flex-wrap: wrap !important;
+        align-items: flex-start !important; gap: 6px !important;
+    }
+    [data-testid="stColumn"] {
+        flex: 1 1 auto !important; min-width: 120px !important;
+        max-width: none !important; width: auto !important;
+    }
+    .gm-header-wrap  { padding: 8px 6px 8px !important; }
+    .gm-header-title { font-size: 1.4rem !important; }
+    .gm-header-sub   { font-size: 0.72rem !important; }
+    /* tabs เล็กลงนิดหน่อย */
+    [data-testid="stTabs"] button[role="tab"] { font-size: 0.76rem !important; padding: 6px 9px !important; }
+    [data-testid="stMetric"] { padding: 10px 12px !important; }
+    /* fib grid 4 col ในแนวนอน */
+    .fib-grid { grid-template-columns: repeat(4, 1fr) !important; }
 }
 </style>
 """
@@ -623,8 +648,8 @@ _stc.html("""
 (function(){
   var d = window.parent.document; var w = window.parent;
   var vp = d.querySelector('meta[name="viewport"]');
-  if(vp) vp.setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover');
-  else { var m=d.createElement('meta'); m.name='viewport'; m.content='width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover'; d.head.appendChild(m); }
+  if(vp) vp.setAttribute('content','width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover');
+  else { var m=d.createElement('meta'); m.name='viewport'; m.content='width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover'; d.head.appendChild(m); }
   if(w.history&&w.history.scrollRestoration){ w.history.scrollRestoration='manual'; }
   d.addEventListener('click',function(ev){ var a=ev.target.closest('a'); if(a){ var h=a.getAttribute('href'); if(h==='#'||h===''||h===null){ ev.preventDefault(); ev.stopPropagation(); } }},true);
   function hideFooter(){
@@ -648,7 +673,8 @@ _stc.html("""
     ].forEach(function(sel){ d.querySelectorAll(sel).forEach(function(el){ el.style.setProperty('background','transparent','important'); el.style.setProperty('background-color','transparent','important'); }); });
   }
   function stackCols(){
-    if(w.innerWidth>768) return;
+    // แนวนอน (landscape) ไม่ต้อง stack columns
+    if(w.innerWidth > 768 || (w.innerHeight < 500 && w.innerWidth > w.innerHeight)) return;
     d.querySelectorAll('[data-testid="stHorizontalBlock"]').forEach(function(blk){
       blk.style.setProperty('display','flex','important'); blk.style.setProperty('flex-direction','column','important');
       blk.style.setProperty('align-items','stretch','important'); blk.style.setProperty('width','100%','important');
@@ -965,53 +991,104 @@ def _style_signal_html(label: str, color: str, bg: str) -> str:
 
 def render_fib_table(fibs: dict, current_price: float, atr: float):
     """
-    FIX: แสดง Fibonacci levels ด้วย visual box พร้อมสี gradient และ progress bar
-    แต่ละ level มีกรอบแยก ระบุ near/golden zone ชัดเจน
+    แสดง Fibonacci 7 ระดับด้วยกรอบ glass-morphism เหมือน SMA/EMA metric cards
+    แต่ละระดับมีกรอบแยก สีต่างกัน แสดงราคา / ระยะห่าง / คำอธิบาย
     """
-    fib_order = ["Fib 100%", "Fib 78.6%", "Fib 61.8%", "Fib 50.0%", "Fib 38.2%", "Fib 23.6%", "Fib 0%"]
-    fib_values = [fibs.get(k) for k in fib_order]
-    valid_prices = [v for v in fib_values if v is not None and not pd.isna(v)]
-    if not valid_prices:
-        st.warning("ไม่มีข้อมูล Fibonacci")
-        return
+    FIB_ORDER = ["Fib 100%", "Fib 78.6%", "Fib 61.8%", "Fib 50.0%", "Fib 38.2%", "Fib 23.6%", "Fib 0%"]
+    # สี border / accent สำหรับแต่ละ level
+    FIB_ACCENT = {
+        "Fib 100%":  {"border": "#CE93D8", "glow": "rgba(206,147,216,0.25)", "bg": "rgba(206,147,216,0.08)"},
+        "Fib 78.6%": {"border": "#BA68C8", "glow": "rgba(186,104,200,0.22)", "bg": "rgba(186,104,200,0.07)"},
+        "Fib 61.8%": {"border": "#F48FB1", "glow": "rgba(244,143,177,0.30)", "bg": "rgba(244,143,177,0.13)"},
+        "Fib 50.0%": {"border": "#FFB74D", "glow": "rgba(255,183,77,0.25)",  "bg": "rgba(255,183,77,0.09)"},
+        "Fib 38.2%": {"border": "#81C784", "glow": "rgba(129,199,132,0.22)", "bg": "rgba(129,199,132,0.08)"},
+        "Fib 23.6%": {"border": "#64B5F6", "glow": "rgba(100,181,246,0.22)", "bg": "rgba(100,181,246,0.08)"},
+        "Fib 0%":    {"border": "#9575CD", "glow": "rgba(149,117,205,0.22)", "bg": "rgba(149,117,205,0.08)"},
+    }
+    FIB_EMOJI = {
+        "Fib 100%":  "🏔️", "Fib 78.6%": "🛡️", "Fib 61.8%": "🥇",
+        "Fib 50.0%": "🥈", "Fib 38.2%": "🥉", "Fib 23.6%": "⚡", "Fib 0%": "⚠️",
+    }
+    FIB_ROLE = {
+        "Fib 100%":  "Swing High", "Fib 78.6%": "แนวป้องกัน",
+        "Fib 61.8%": "Golden Zone ★", "Fib 50.0%": "จุดกลาง",
+        "Fib 38.2%": "แนวรับตื้น", "Fib 23.6%": "Shallow Dip", "Fib 0%": "Swing Low",
+    }
 
-    price_max = max(valid_prices)
-    price_min = min(valid_prices)
-    price_range = price_max - price_min if price_max != price_min else 1.0
+    valid = [(k, fibs[k]) for k in FIB_ORDER if k in fibs and fibs[k] is not None and not pd.isna(fibs[k])]
+    if not valid:
+        st.warning("ไม่มีข้อมูล Fibonacci"); return
 
-    rows_html = ""
-    for key, val in zip(fib_order, fib_values):
-        if val is None or pd.isna(val):
-            continue
-        c = FIB_COLORS.get(key, {"border": "#a78bfa", "text": "#a78bfa", "bg": "rgba(167,139,250,0.10)"})
-        desc_title, desc_body = FIB_DESCRIPTIONS.get(key, ("", ""))
-        distance = ((current_price - val) / val) * 100 if val else 0
-        is_near   = abs(current_price - val) <= atr * 0.5
+    cards_html = ""
+    for key, val in valid:
+        ac = FIB_ACCENT.get(key, {"border":"#a78bfa","glow":"rgba(167,139,250,0.20)","bg":"rgba(167,139,250,0.08)"})
+        dist_pct  = (current_price - val) / val * 100
+        dist_abs  = current_price - val
+        is_near   = abs(dist_abs) <= atr * 0.55
         is_golden = key == "Fib 61.8%"
-        dist_color = "#34D399" if distance >= 0 else "#F87171"
-        sign = "+" if distance >= 0 else ""
+        dist_color = "#34D399" if dist_pct >= 0 else "#F87171"
+        sign = "+" if dist_pct >= 0 else ""
+        above_below = "เหนือ ↑" if dist_pct >= 0 else "ใต้ ↓"
+        emoji = FIB_EMOJI.get(key, "📌")
+        role  = FIB_ROLE.get(key, "")
+        label = key.replace("Fib ", "")
 
-        # progress bar width (% ของช่วงราคา)
-        bar_pct = ((val - price_min) / price_range) * 100
+        # กรอบพิเศษเมื่อราคาอยู่ใกล้
+        if is_near:
+            border_style = f"border:1.5px solid {ac['border']};box-shadow:0 0 0 2px {ac['glow']},0 6px 24px rgba(0,0,0,0.32),inset 0 1px 0 rgba(255,255,255,0.12);"
+            near_chip = f'<span style="display:inline-block;font-size:0.58rem;font-weight:800;color:#fbbf24;background:rgba(251,191,36,0.18);border:1px solid rgba(251,191,36,0.45);border-radius:5px;padding:1px 6px;margin-left:5px;vertical-align:middle;">📍 ใกล้</span>'
+        else:
+            border_style = f"border:1px solid rgba(255,255,255,0.11);"
+            near_chip = ""
 
-        extra_class = ""
-        if is_near:   extra_class = "fib-near"
-        elif is_golden: extra_class = "fib-golden"
+        # Golden Zone label พิเศษ
+        if is_golden:
+            role_display = f'<span style="color:#F48FB1;font-weight:800;">{role}</span>'
+        else:
+            role_display = role
 
-        near_badge = '<span class="fib-near-badge">📍 ราคาใกล้</span>' if is_near else ""
-        label_short = key.replace("Fib ", "")
+        # ราคา format
+        if val >= 10000:   price_fmt = f"{val:,.0f}"
+        elif val >= 100:   price_fmt = f"{val:,.2f}"
+        elif val >= 1:     price_fmt = f"{val:.4f}"
+        else:              price_fmt = f"{val:.6f}"
 
-        rows_html += f"""
-<div class="fib-row {extra_class}">
-  <div class="fib-bar-bg" style="width:{bar_pct:.1f}%"></div>
-  <div class="fib-label" style="color:{c['text']};">{label_short}</div>
-  <div class="fib-price">{val:.2f}{near_badge}</div>
-  <div class="fib-dist" style="color:{dist_color};">{sign}{distance:.1f}%</div>
-  <div class="fib-desc">{desc_title}</div>
+        cards_html += f"""
+<div style="background:{ac['bg']};backdrop-filter:blur(22px) saturate(200%);
+     -webkit-backdrop-filter:blur(22px) saturate(200%);
+     border-radius:18px;padding:14px 16px 12px;
+     {border_style}
+     transition:transform 0.18s ease,box-shadow 0.18s ease;
+     border-left:3px solid {ac['border']};">
+  <!-- header row -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+    <span style="font-size:0.68rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;
+          color:{ac['border']};opacity:0.9;">{label}</span>
+    <span style="font-size:0.80rem;">{emoji}</span>
+  </div>
+  <!-- ราคา -->
+  <div style="font-size:1.28rem;font-weight:900;color:#F5F5F7;letter-spacing:-0.02em;
+       line-height:1;font-variant-numeric:tabular-nums;margin-bottom:5px;">
+    {price_fmt}{near_chip}
+  </div>
+  <!-- ระยะห่างจากราคาปัจจุบัน -->
+  <div style="font-size:0.82rem;font-weight:700;color:{dist_color};margin-bottom:5px;">
+    {above_below}&nbsp;{sign}{abs(dist_pct):.1f}%
+    <span style="font-size:0.70rem;font-weight:500;color:rgba(235,235,245,0.35);margin-left:4px;">
+      ({sign}{abs(dist_abs):.2f})
+    </span>
+  </div>
+  <!-- role label -->
+  <div style="font-size:0.70rem;color:rgba(235,235,245,0.45);line-height:1.3;">{role_display}</div>
 </div>"""
 
-    st.markdown(f'<div class="fib-table-wrap">{rows_html}</div>', unsafe_allow_html=True)
-    st.caption("📐 คำนวณจาก Swing High/Low ย้อนหลัง 60 วัน  |  สีแดงอยู่เหนือราคา สีเขียวอยู่ใต้ราคา  |  📍 = ราคาอยู่ใกล้ระดับนี้ (ห่าง < ½ ATR)")
+    # 7 cards ใน responsive grid
+    st.markdown(f"""
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,155px),1fr));
+     gap:10px;margin:8px 0 14px;">
+  {cards_html}
+</div>""", unsafe_allow_html=True)
+    st.caption("📐 Swing High/Low ย้อนหลัง 60 วัน  ·  📍 ราคาอยู่ใกล้ (< ½ ATR)  ·  🥇 Golden Ratio 61.8% = โซนที่ดีที่สุด")
 
 
 def render_trading_style(price, atr, pivots, fibs, values):
@@ -1520,13 +1597,32 @@ show_analysis = bool(target_stock) and (
 # STOCK RESULT SECTION
 # ══════════════════════════════════════════════════════════════════
 if show_analysis:
-    # FIX: วาง anchor ก่อน render ผล — scroll JS จะทำงานหลังจาก DOM พร้อม
-    st.markdown('<div id="gm-result-anchor" style="scroll-margin-top:20px;"></div>', unsafe_allow_html=True)
+    # วาง anchor ก่อน render ผล
+    st.markdown('<div id="gm-result-anchor" style="scroll-margin-top:16px;"></div>', unsafe_allow_html=True)
 
-    # FIX: inject scroll JS ทุกครั้งที่มีผลลัพธ์ใหม่
+    # SCROLL FIX: ใช้ _stc.html เพราะสร้าง iframe จริงทุกครั้ง ไม่ถูก deduplicate
+    # JS ใน iframe เข้าถึง window.parent ได้เสมอ
     if st.session_state.should_scroll:
         st.session_state.should_scroll = False
-        st.markdown(_SCROLL_JS, unsafe_allow_html=True)
+        _stc.html("""
+<script>
+(function(){
+  var tries = 0;
+  function go(){
+    try {
+      var docs = [];
+      if(window.parent && window.parent.document) docs.push(window.parent.document);
+      docs.push(document);
+      for(var i=0;i<docs.length;i++){
+        var el = docs[i].getElementById('gm-result-anchor');
+        if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); return; }
+      }
+    } catch(e){}
+    if(tries++ < 40) setTimeout(go, 100);
+  }
+  setTimeout(go, 300);
+})();
+</script>""", height=0, scrolling=False)
 
     with st.spinner(f"กำลังดึงข้อมูลของ {target_stock}..."):
         try:
