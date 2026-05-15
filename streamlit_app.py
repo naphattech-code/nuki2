@@ -164,6 +164,17 @@ body {
     overflow-x: hidden !important;
     background: transparent !important;
 }
+/* ── ล้าง padding ทุก Streamlit wrapper layer ── */
+[data-testid="stApp"],
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"],
+[data-testid="stMainBlockContainer"],
+section.main,
+.main {
+    padding: 0 !important; margin: 0 !important;
+    background: transparent !important;
+    width: 100% !important; max-width: 100% !important;
+}
 [data-testid="stCustomComponentV1"],
 [data-testid="stCustomComponentV1"] > div,
 [data-testid="stCustomComponentV1"] iframe {
@@ -182,6 +193,7 @@ body {
 .block-container, [data-testid="block-container"] {
     padding: 0.75rem 0.75rem 2rem 0.75rem !important;
     max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 [data-testid="stHeader"] { display: none !important; height: 0 !important; visibility: hidden !important; }
 
@@ -469,48 +481,75 @@ hr { border-color: rgba(255,255,255,0.08) !important; }
 .gm-header-sub   { color: rgba(235,235,245,0.45) !important; }
 .gm-card-label   { color: #FFFFFF !important; text-shadow: 0 1px 3px rgba(0,0,0,0.45) !important; }
 
-/* ── RESPONSIVE MOBILE ─────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════
+   MOBILE — ชนขอบจอทั้งแนวตั้งและแนวนอน
+   ══════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-    html, body { overflow-x: hidden !important; max-width: 100vw !important; }
-    .block-container, [data-testid="block-container"] {
-        padding: 0.5rem 0.5rem 2rem 0.5rem !important;
-        max-width: 100vw !important; overflow-x: hidden !important;
+    /* ล้างทุก margin/padding ที่ Streamlit ใส่มา */
+    html, body {
+        margin: 0 !important; padding: 0 !important;
+        overflow-x: hidden !important;
+        width: 100vw !important; max-width: 100vw !important;
+    }
+    /* wrapper ทุกชั้นของ Streamlit */
+    [data-testid="stApp"],
+    [data-testid="stAppViewContainer"],
+    [data-testid="stMain"],
+    [data-testid="stMainBlockContainer"],
+    [data-testid="stVerticalBlock"],
+    section.main, .main {
+        padding: 0 !important; margin: 0 !important;
+        width: 100vw !important; max-width: 100vw !important;
         box-sizing: border-box !important;
     }
-    /* บังคับไม่ให้กรอบใดๆ ทะลุขอบจอ */
-    * { box-sizing: border-box !important; }
-    .gm-header-wrap  { padding: 30px 6px 14px !important; }
+    /* content block — เว้น padding น้อยที่สุด */
+    .block-container, [data-testid="block-container"] {
+        padding: 0.4rem 0.4rem 2rem 0.4rem !important;
+        margin: 0 !important;
+        width: 100vw !important; max-width: 100vw !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+    /* ทุก element ไม่ให้ล้นจอ */
+    *, *::before, *::after { box-sizing: border-box !important; }
+    .gm-header-wrap  { padding: 28px 8px 12px !important; }
     .gm-header-title { font-size: 1.8rem !important; }
-    [data-testid="stTabs"] button[role="tab"] { font-size: 0.82rem !important; padding: 6px 8px !important; margin: 0 2px !important; }
+    [data-testid="stTabs"] button[role="tab"] {
+        font-size: 0.80rem !important; padding: 6px 7px !important; margin: 0 1px !important;
+    }
     [data-testid="stMetric"] { padding: 12px 14px !important; }
-    /* ให้ปุ่ม Nuki ปักหมุดเลื่อนซ้ายขวาได้เวลาล้น */
+    /* ปุ่มปักหมุดเลื่อน scroll ได้ */
     [data-testid="stMarkdown"]:has(#gm-fav-anchor) + [data-testid="stHorizontalBlock"] {
         flex-wrap: nowrap !important; overflow-x: auto !important;
     }
 }
 
-/* ── แนวตั้ง (Portrait) ── */
+/* ── แนวตั้ง (Portrait) — stack columns ── */
 @media (max-width: 768px) and (orientation: portrait) {
     [data-testid="stHorizontalBlock"] {
         flex-direction: column !important; align-items: stretch !important;
-        gap: 0.5rem !important; width: 100% !important;
+        gap: 0.4rem !important; width: 100% !important;
     }
     [data-testid="stColumn"] {
         width: 100% !important; min-width: 100% !important; max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 }
 
-/* ── แนวนอน (Landscape) ── */
+/* ── แนวนอน (Landscape) — 2 col layout ── */
 @media (max-width: 950px) and (orientation: landscape) {
-    .block-container, [data-testid="block-container"] { padding: 0.2rem 1rem 1.5rem 1rem !important; }
-    .gm-header-title { font-size: 1.4rem !important; }
+    .block-container, [data-testid="block-container"] {
+        padding: 0.2rem 0.5rem 1.5rem 0.5rem !important;
+    }
+    .gm-header-title { font-size: 1.3rem !important; }
     [data-testid="stHorizontalBlock"] {
         flex-direction: row !important; flex-wrap: wrap !important;
-        align-items: stretch !important; gap: 8px !important;
+        align-items: stretch !important; gap: 6px !important;
     }
     [data-testid="stColumn"] {
-        flex: 1 1 calc(50% - 10px) !important;
-        min-width: 150px !important; width: auto !important;
+        flex: 1 1 calc(50% - 8px) !important;
+        min-width: 140px !important; width: auto !important;
+        box-sizing: border-box !important;
     }
     .fib-grid { grid-template-columns: repeat(4, 1fr) !important; }
 }
@@ -662,9 +701,34 @@ _stc.html("""
     });
   }
   function fixBg(){
-    ['[data-testid="stApp"]','[data-testid="stAppViewContainer"]','[data-testid="stMain"]',
-     '[data-testid="block-container"]','[data-testid="stVerticalBlock"]','.block-container','section.main'
-    ].forEach(function(sel){ d.querySelectorAll(sel).forEach(function(el){ el.style.setProperty('background','transparent','important'); el.style.setProperty('background-color','transparent','important'); }); });
+    var selectors = [
+      '[data-testid="stApp"]','[data-testid="stAppViewContainer"]',
+      '[data-testid="stMain"]','[data-testid="stMainBlockContainer"]',
+      '[data-testid="stVerticalBlock"]','.block-container','section.main','.main'
+    ];
+    selectors.forEach(function(sel){
+      d.querySelectorAll(sel).forEach(function(el){
+        el.style.setProperty('background','transparent','important');
+        el.style.setProperty('background-color','transparent','important');
+      });
+    });
+    // mobile: ลบ padding/margin ของ wrapper ทุกชั้น
+    if(w.innerWidth <= 768){
+      var padSelectors = [
+        '[data-testid="stApp"]','[data-testid="stAppViewContainer"]',
+        '[data-testid="stMain"]','[data-testid="stMainBlockContainer"]',
+        '[data-testid="stVerticalBlock"]','section.main','.main'
+      ];
+      padSelectors.forEach(function(sel){
+        d.querySelectorAll(sel).forEach(function(el){
+          el.style.setProperty('padding','0','important');
+          el.style.setProperty('margin','0','important');
+          el.style.setProperty('max-width','100vw','important');
+          el.style.setProperty('width','100%','important');
+          el.style.setProperty('box-sizing','border-box','important');
+        });
+      });
+    }
   }
   function runAll(){ hideFooter(); fixBg(); }
   runAll(); w.addEventListener('resize',runAll);
@@ -738,7 +802,7 @@ def save_favorites(favorites):
 def load_favorite_snapshot_data(ticker):
     try:
         df = yf.Ticker(ticker).history(period="5d")
-        if df is None or df.empty or len(df) < 1: return None
+        if df is None or df.empty or len(df) < 2: return None
         price = float(df["Close"].iloc[-1])
         prev  = float(df["Close"].iloc[-2])
         pct   = (price - prev) / prev * 100 if prev else 0.0
@@ -762,7 +826,42 @@ def favorite_button_label(ticker):
 
 @st.cache_data(ttl=300)
 def load_stock_history(ticker):
-    return yf.Ticker(ticker).history(period="max")
+    """
+    ลองดึงข้อมูลหลาย period จากสั้นไปยาว
+    — รองรับหุ้นที่เพิ่ง IPO มีข้อมูลแค่ไม่กี่วัน
+    — คืน DataFrame ที่มีข้อมูลมากที่สุดเท่าที่มี
+    """
+    ticker_obj = yf.Ticker(ticker)
+
+    # ลองจาก period สั้นที่สุดก่อน เพื่อเช็คว่า ticker valid
+    # จากนั้นเพิ่มระยะเวลาขึ้นเรื่อยๆ
+    periods = ["5d", "1mo", "3mo", "6mo", "1y", "2y"]
+    best_df = pd.DataFrame()
+
+    for period in periods:
+        try:
+            df = ticker_obj.history(period=period)
+            if df is not None and not df.empty:
+                best_df = df
+                # ถ้าได้ข้อมูลมากพอสำหรับ indicator ครบ ก็พอแล้ว
+                if len(df) >= 60:
+                    return df
+        except Exception:
+            continue
+
+    # fallback: ลอง download ด้วย start date ไกลสุด
+    if best_df.empty:
+        try:
+            df = yf.download(ticker, period="max", progress=False, auto_adjust=True)
+            if df is not None and not df.empty:
+                # flatten multi-index ถ้ามี
+                if isinstance(df.columns, pd.MultiIndex):
+                    df.columns = df.columns.get_level_values(0)
+                best_df = df
+        except Exception:
+            pass
+
+    return best_df
 
 
 @st.cache_data(ttl=300)
@@ -1615,8 +1714,8 @@ if show_analysis:
             df    = load_stock_history(target_stock)
             info  = load_stock_info(target_stock)
 
-            if df.empty or len(df) < 1:
-                st.error("❌ ไม่พบข้อมูลหุ้นนี้ หรือข้อมูลน้อยเกินไป — ตรวจสอบชื่อย่อหุ้นอีกครั้ง")
+            if df.empty or len(df) < 2:
+                st.error("❌ ไม่พบข้อมูลหุ้นนี้ — ตรวจสอบชื่อย่อหุ้นอีกครั้ง (ตัวอย่าง: AAPL, PTT.BK)")
                 _stc.html(f"""<script>(function(){{
   var tries=0;
   function say(){{ if(window.parent&&window.parent.gmTanukiSpeak) window.parent.gmTanukiSpeak('ไม่พบข้อมูลหุ้นนี้ ลองตรวจชื่อย่ออีกครั้งนะ','alert');
@@ -1624,6 +1723,9 @@ if show_analysis:
   setTimeout(say,450);
 }})();</script>""", height=0, scrolling=False)
             else:
+                # แจ้งเตือนถ้าข้อมูลน้อย (หุ้น IPO ใหม่)
+                if len(df) < 20:
+                    st.warning(f"⚠️ หุ้นนี้มีข้อมูลเพียง {len(df)} วัน (อาจเป็น IPO ใหม่) — ตัวชี้วัดบางตัวอาจไม่แม่นยำ")
                 indicators    = calculate_indicators(df)
                 current_price = float(df["Close"].iloc[-1])
                 prev_price    = float(df["Close"].iloc[-2])
