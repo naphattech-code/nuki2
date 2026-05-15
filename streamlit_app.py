@@ -1615,7 +1615,7 @@ if show_analysis:
             df    = load_stock_history(target_stock)
             info  = load_stock_info(target_stock)
 
-            if df.empty or len(df) < 20:
+            if df.empty or len(df) < 1:
                 st.error("❌ ไม่พบข้อมูลหุ้นนี้ หรือข้อมูลน้อยเกินไป — ตรวจสอบชื่อย่อหุ้นอีกครั้ง")
                 _stc.html(f"""<script>(function(){{
   var tries=0;
