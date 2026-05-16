@@ -415,20 +415,6 @@ body.dark-mode .gm-card-label   { color: #FFFFFF !important; text-shadow: 0 1px 
     [data-testid="stTabs"] button[role="tab"] { font-size: 0.75rem !important; padding: 7px 8px !important; }
 }
 
-/* ── PORTRAIT LOCK overlay — ซ่อนไว้ แสดงเมื่อ JS ตรวจพบ landscape ── */
-#gm-rotate-overlay {
-    display: none;
-    position: fixed; inset: 0; z-index: 2147483646;
-    background: #0a0f18;
-    flex-direction: column; align-items: center; justify-content: center; gap: 18px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-@keyframes gmRotateSpin {
-    0%,100% { transform: rotate(0deg); }
-    40%      { transform: rotate(90deg); }
-    60%      { transform: rotate(90deg); }
-}
-</style>
 """
 _GLOBAL_CSS = _GLOBAL_CSS.replace('body.dark-mode', 'body')
 st.markdown(_GLOBAL_CSS, unsafe_allow_html=True)
@@ -593,29 +579,6 @@ _stc.html("""
       });
     });
   }
-  // Portrait lock overlay — ทำงานทุก browser รวม Safari iOS
-  function buildOverlay(){
-    var ov = d.getElementById('gm-rotate-overlay');
-    if(!ov){
-      ov = d.createElement('div'); ov.id = 'gm-rotate-overlay';
-      ov.style.cssText = 'display:none;position:fixed;inset:0;z-index:2147483646;background:#0a0f18;flex-direction:column;align-items:center;justify-content:center;gap:18px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;';
-      ov.innerHTML = '<div style="font-size:3.5rem;animation:gmRotateSpin 2s ease-in-out infinite;">📱</div><div style="font-size:1.1rem;font-weight:700;color:#F5F5F7;">กรุณาหมุนกลับแนวตั้ง</div><div style="font-size:0.82rem;color:rgba(235,235,245,0.45);">แอปนี้ออกแบบสำหรับแนวตั้งเท่านั้น</div>';
-      d.body.appendChild(ov);
-    }
-    return ov;
-  }
-  function checkOrientation(){
-    var ov = buildOverlay();
-    var isLandscape = (w.screen && w.screen.orientation)
-      ? w.screen.orientation.type.includes('landscape')
-      : (w.innerWidth > w.innerHeight && w.innerHeight < 600);
-    ov.style.display = isLandscape ? 'flex' : 'none';
-  }
-  // Android Chrome — lock API
-  try { if(w.screen&&w.screen.orientation&&w.screen.orientation.lock){ w.screen.orientation.lock('portrait').catch(function(){}); } } catch(e){}
-  checkOrientation();
-  w.addEventListener('resize', checkOrientation);
-  w.addEventListener('orientationchange', function(){ setTimeout(checkOrientation, 150); });
   function runAll(){ hideFooter(); fixBg(); stackCols(); }
   runAll(); w.addEventListener('resize', runAll);
   new MutationObserver(runAll).observe(d.body,{childList:true,subtree:true});
