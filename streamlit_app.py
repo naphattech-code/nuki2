@@ -877,7 +877,7 @@ def load_stock_history(ticker):
             if df is not None and not df.empty:
                 best_df = df
                 # ถ้าได้ข้อมูลมากพอสำหรับ indicator ครบ ก็พอแล้ว
-                if len(df) >= 60:
+                if len(df) >= 200:
                     return df
         except Exception:
             continue
