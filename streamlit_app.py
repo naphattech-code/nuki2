@@ -537,6 +537,12 @@ hr { border-color: rgba(255,255,255,0.08) !important; }
         max-width: none !important;
         flex: 0 0 auto !important;
     }
+/* ── PORTRAIT LOCK — บังคับแนวตั้ง (Safari iOS + ทุก browser) ── */
+@media (orientation: landscape) and (max-height: 600px) {
+    /* แสดง overlay เต็มจอเมื่อหมุนแนวนอน */
+    #gm-rotate-overlay {
+        display: flex !important;
+    }
 }
 </style>
 """
@@ -668,12 +674,48 @@ _stc.html("""
   var vp = d.querySelector('meta[name="viewport"]');
   if(vp) vp.setAttribute('content','width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover');
   else { var m=d.createElement('meta'); m.name='viewport'; m.content='width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover'; d.head.appendChild(m); }
-  // ล็อคแนวตั้ง — ถ้าเบราว์เซอร์รองรับ Screen Orientation API
+  // ── PORTRAIT LOCK (Safari iOS safe) ──────────────────────────
+  // Screen Orientation API (Android Chrome)
   try {
     if(w.screen && w.screen.orientation && w.screen.orientation.lock) {
       w.screen.orientation.lock('portrait').catch(function(){});
     }
   } catch(e) {}
+
+  // Overlay สำหรับ Safari iOS ที่ lock ด้วย API ไม่ได้
+  var overlay = d.getElementById('gm-rotate-overlay');
+  if(!overlay){
+    overlay = d.createElement('div');
+    overlay.id = 'gm-rotate-overlay';
+    overlay.style.cssText = [
+      'display:none',
+      'position:fixed',
+      'inset:0',
+      'z-index:2147483646',
+      'background:#0a0f18',
+      'flex-direction:column',
+      'align-items:center',
+      'justify-content:center',
+      'gap:18px',
+      'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    ].join(';');
+    overlay.innerHTML = [
+      '<div style="font-size:3.5rem;animation:gmRotateSpin 2s ease-in-out infinite;">📱</div>',
+      '<div style="font-size:1.1rem;font-weight:700;color:#F5F5F7;letter-spacing:0.02em;">กรุณาหมุนกลับแนวตั้ง</div>',
+      '<div style="font-size:0.82rem;color:rgba(235,235,245,0.45);">แอปนี้ออกแบบสำหรับแนวตั้งเท่านั้น</div>',
+    ].join('');
+    var ks = d.createElement('style');
+    ks.textContent = '@keyframes gmRotateSpin{0%,100%{transform:rotate(0deg)}40%{transform:rotate(90deg)}60%{transform:rotate(90deg)}}';
+    d.head.appendChild(ks);
+    d.body.appendChild(overlay);
+  }
+  function checkOrientation(){
+    var isLandscape = w.innerWidth > w.innerHeight && w.innerHeight < 600;
+    overlay.style.display = isLandscape ? 'flex' : 'none';
+  }
+  checkOrientation();
+  w.addEventListener('resize', checkOrientation);
+  w.addEventListener('orientationchange', function(){ setTimeout(checkOrientation, 120); });
   if(w.history&&w.history.scrollRestoration){ w.history.scrollRestoration='manual'; }
   d.addEventListener('click',function(ev){ var a=ev.target.closest('a'); if(a){ var h=a.getAttribute('href'); if(h==='#'||h===''||h===null){ ev.preventDefault(); ev.stopPropagation(); } }},true);
   function hideFooter(){
