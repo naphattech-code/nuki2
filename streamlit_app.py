@@ -483,7 +483,6 @@ hr { border-color: rgba(255,255,255,0.08) !important; }
 
 /* ── RESPONSIVE MOBILE (บังคับยืดเต็มจอสุดหลอด ขอบชนขอบ 100%) ────────────────── */
 @media (max-width: 950px) {
-    /* 1. สาดสีดำทับชั้นล่างสุดของเว็บ กันขอบขาวโผล่เวลาลากจอ */
     html, body, [data-testid="stApp"], [data-testid="stAppViewContainer"], section.main {
         background-color: #0a0f18 !important;
         margin: 0 !important;
@@ -492,7 +491,6 @@ hr { border-color: rgba(255,255,255,0.08) !important; }
         max-width: 100% !important;
         width: 100% !important;
     }
-    /* 2. ทลายกรอบ Streamlit สั่ง Padding ซ้าย-ขวา ให้เป็น 0 เด็ดขาด */
     .block-container, [data-testid="block-container"] {
         padding-top: 1rem !important;
         padding-bottom: 2rem !important;
@@ -508,57 +506,37 @@ hr { border-color: rgba(255,255,255,0.08) !important; }
     .gm-header-wrap  { padding: 10px 4px 14px !important; }
     .gm-header-title { font-size: 1.8rem !important; }
     [data-testid="stTabs"] button[role="tab"] { font-size: 0.82rem !important; padding: 6px 8px !important; margin: 0 2px !important; }
-    /* 3. ขยับเนื้อหาด้านในไม่ให้ข้อความชิดขอบจอจนตกขอบเกินไป */
     [data-testid="stMetric"], .gm-card {
         padding: 12px 14px !important;
         margin: 0 4px !important;
     }
     [data-testid="stHorizontalBlock"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
         gap: 8px !important;
-        row-gap: 8px !important;
-        column-gap: 8px !important;
-        margin-bottom: 8px !important;
         width: 100% !important;
         padding: 0 4px !important;
     }
     [data-testid="stColumn"] {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
         padding: 0 !important;
         margin-bottom: 8px !important;
     }
     [data-testid="stMarkdown"]:has(#gm-fav-anchor) + [data-testid="stHorizontalBlock"] {
-        flex-wrap: nowrap !important; overflow-x: auto !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
         margin-bottom: 6px !important;
         padding: 0 !important;
     }
-}
-
-/* ── จอมือถือ: แนวตั้ง (Portrait) ── */
-@media (max-width: 768px) and (orientation: portrait) {
-    [data-testid="stHorizontalBlock"] {
-        flex-direction: column !important; align-items: stretch !important;
+    [data-testid="stMarkdown"]:has(#gm-fav-anchor) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"] {
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
+        flex: 0 0 auto !important;
     }
-    [data-testid="stColumn"] {
-        width: 100% !important; min-width: 100% !important; max-width: 100% !important;
-    }
-}
-
-/* ── จอมือถือ: แนวนอน (Landscape) ── */
-@media (max-width: 950px) and (orientation: landscape) {
-    .block-container, [data-testid="block-container"] {
-        padding: 0.5rem 0px 1.5rem 0px !important;
-    }
-    .gm-header-title { font-size: 1.4rem !important; }
-    [data-testid="stHorizontalBlock"] {
-        display: flex !important; flex-direction: row !important;
-        flex-wrap: wrap !important; align-items: stretch !important;
-        padding: 0 6px !important;
-    }
-    [data-testid="stColumn"] {
-        flex: 1 1 calc(50% - 8px) !important;
-        min-width: 200px !important;
-        max-width: calc(50% - 4px) !important;
-    }
-    .fib-grid { grid-template-columns: repeat(4, 1fr) !important; }
 }
 </style>
 """
@@ -690,6 +668,12 @@ _stc.html("""
   var vp = d.querySelector('meta[name="viewport"]');
   if(vp) vp.setAttribute('content','width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover');
   else { var m=d.createElement('meta'); m.name='viewport'; m.content='width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover'; d.head.appendChild(m); }
+  // ล็อคแนวตั้ง — ถ้าเบราว์เซอร์รองรับ Screen Orientation API
+  try {
+    if(w.screen && w.screen.orientation && w.screen.orientation.lock) {
+      w.screen.orientation.lock('portrait').catch(function(){});
+    }
+  } catch(e) {}
   if(w.history&&w.history.scrollRestoration){ w.history.scrollRestoration='manual'; }
   d.addEventListener('click',function(ev){ var a=ev.target.closest('a'); if(a){ var h=a.getAttribute('href'); if(h==='#'||h===''||h===null){ ev.preventDefault(); ev.stopPropagation(); } }},true);
   function hideFooter(){
