@@ -157,12 +157,14 @@ html {
     width: 100% !important; min-height: 100% !important;
     overflow-x: hidden !important;
     background: #0a0f18 !important;
+    background-color: #0a0f18 !important;
 }
 body {
     margin: 0 !important; padding: 0 !important;
     width: 100% !important; min-height: 100% !important;
     overflow-x: hidden !important;
     background: transparent !important;
+    background-color: #0a0f18 !important;
 }
 [data-testid="stCustomComponentV1"],
 [data-testid="stCustomComponentV1"] > div,
@@ -387,6 +389,23 @@ body.dark-mode .gm-header-title { color: #F5F5F7 !important; }
 body.dark-mode .gm-header-sub   { color: rgba(235,235,245,0.45) !important; }
 .gm-card-label { color: #1C1C1E !important; }
 body.dark-mode .gm-card-label   { color: #FFFFFF !important; text-shadow: 0 1px 3px rgba(0,0,0,0.45) !important; }
+
+/* ── LANDSCAPE BLOCK — pure CSS ทำงานได้ทุก browser รวม Safari iOS ── */
+@media screen and (orientation: landscape) and (max-height: 600px) {
+    html::before {
+        content: '';
+        position: fixed; inset: 0; z-index: 2147483646;
+        background: #0a0f18;
+    }
+    html::after {
+        content: '📱 กรุณาหมุนกลับแนวตั้ง';
+        position: fixed; top: 50%; left: 50%; z-index: 2147483647;
+        transform: translate(-50%, -50%);
+        color: #F5F5F7; font-size: 1.1rem; font-weight: 700;
+        white-space: nowrap;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+}
 
 /* ── MOBILE ────────────────────────────────────────────────── */
 @media (max-width: 768px) {
