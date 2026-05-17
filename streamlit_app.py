@@ -569,7 +569,11 @@ _stc.html("""
     ].forEach(function(sel){ d.querySelectorAll(sel).forEach(function(el){ el.style.setProperty('background','transparent','important'); el.style.setProperty('background-color','transparent','important'); }); });
   }
   function stackCols(){
-    if(w.innerWidth>768) return;
+    // ใช้ขนาดหน้าจอจริง (screen) ไม่ใช่ viewport ปัจจุบัน
+    // เพื่อให้ detect "มือถือ" ได้ทั้งแนวตั้งและแนวนอน
+    var screenMin = Math.min(w.screen.width, w.screen.height);
+    if(screenMin > 768) return;  // ไม่ใช่มือถือ → ข้าม
+    // มือถือ → บังคับ column layout เสมอ ไม่ว่าจะหมุนยังไง
     d.querySelectorAll('[data-testid="stHorizontalBlock"]').forEach(function(blk){
       blk.style.setProperty('display','flex','important'); blk.style.setProperty('flex-direction','column','important');
       blk.style.setProperty('align-items','stretch','important'); blk.style.setProperty('width','100%','important');
@@ -648,7 +652,7 @@ def load_stock_history(ticker):
             df = ticker_obj.history(period=period)
             if df is not None and not df.empty:
                 best_df = df
-                if len(df) >= 200:
+                if len(df) >= 60:
                     return df
         except Exception:
             continue
