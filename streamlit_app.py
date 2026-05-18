@@ -667,7 +667,7 @@ def load_stock_history(ticker):
             df = ticker_obj.history(period=period)
             if df is not None and not df.empty:
                 best_df = df
-                if len(df) >= 60:
+                if len(df) >= 200:
                     return df
         except Exception:
             continue
