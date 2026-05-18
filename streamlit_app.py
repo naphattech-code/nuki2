@@ -17,6 +17,10 @@ from deep_translator import GoogleTranslator
 from plotly.subplots import make_subplots
 
 
+# ══════════════════════════════════════════════════════════════════
+# CACHED HELPERS
+# ══════════════════════════════════════════════════════════════════
+
 @st.cache_data(show_spinner=False, ttl=86400)
 def translate_to_thai(text: str) -> str:
     try:
@@ -26,6 +30,7 @@ def translate_to_thai(text: str) -> str:
         return text
 
 
+# ── [CODE 1] ข่าวหุ้น ─────────────────────────────────────────────
 @st.cache_data(ttl=1800, show_spinner=False)
 def fetch_stock_news(ticker: str, max_items: int = 6):
     try:
@@ -122,6 +127,10 @@ def fetch_us_gainers():
         return [], "regular", str(exc)
 
 
+# ══════════════════════════════════════════════════════════════════
+# PAGE CONFIG + CSS
+# ══════════════════════════════════════════════════════════════════
+
 st.set_page_config(page_title="GEMUDA STATION", page_icon="🌕", layout="wide")
 
 _GLOBAL_CSS = """
@@ -157,14 +166,12 @@ html {
     width: 100% !important; min-height: 100% !important;
     overflow-x: hidden !important;
     background: #0a0f18 !important;
-    background-color: #0a0f18 !important;
 }
 body {
     margin: 0 !important; padding: 0 !important;
     width: 100% !important; min-height: 100% !important;
     overflow-x: hidden !important;
     background: transparent !important;
-    background-color: #0a0f18 !important;
 }
 [data-testid="stCustomComponentV1"],
 [data-testid="stCustomComponentV1"] > div,
@@ -186,7 +193,6 @@ body {
     max-width: 100% !important;
 }
 [data-testid="stHeader"] { display: none !important; height: 0 !important; visibility: hidden !important; }
-
 [data-testid="stMarkdown"]:has(#gm-fav-anchor) + [data-testid="stHorizontalBlock"] button {
     white-space: pre-wrap !important; line-height: 1.35 !important;
     min-height: 60px !important; text-align: center !important;
@@ -330,10 +336,7 @@ h4 { color: #3A3A3C !important; }
     background: rgba(6,78,59,0.75) !important; color: #A7F3D0 !important;
     transform: translateY(-1px) !important;
 }
-/* ══ DARK MODE ═══════════════════════════════════ */
-body.dark-mode {
-    background: transparent !important;
-}
+body.dark-mode { background: transparent !important; }
 body.dark-mode::before {
     background:
         radial-gradient(ellipse 900px 800px at 8%  12%,  rgba(52,211,153,0.30),  transparent 65%),
@@ -349,8 +352,7 @@ body.dark-mode [data-testid="stMetric"] {
 }
 body.dark-mode [data-testid="stMetricLabel"] { color: rgba(235,235,245,0.45) !important; }
 body.dark-mode [data-testid="stMetricValue"] { color: #F5F5F7 !important; }
-body.dark-mode [data-testid="stMarkdown"],
-body.dark-mode p, body.dark-mode label { color: #E5E5EA !important; }
+body.dark-mode [data-testid="stMarkdown"], body.dark-mode p, body.dark-mode label { color: #E5E5EA !important; }
 body.dark-mode span:not([style*="color"]) { color: #E5E5EA !important; }
 body.dark-mode h1, body.dark-mode h2, body.dark-mode h3 { color: #F5F5F7 !important; }
 body.dark-mode h4 { color: rgba(235,235,245,0.75) !important; }
@@ -389,25 +391,6 @@ body.dark-mode .gm-header-title { color: #F5F5F7 !important; }
 body.dark-mode .gm-header-sub   { color: rgba(235,235,245,0.45) !important; }
 .gm-card-label { color: #1C1C1E !important; }
 body.dark-mode .gm-card-label   { color: #FFFFFF !important; text-shadow: 0 1px 3px rgba(0,0,0,0.45) !important; }
-
-/* ── LANDSCAPE BLOCK — pure CSS ทำงานได้ทุก browser รวม Safari iOS ── */
-@media screen and (orientation: landscape) and (max-height: 600px) {
-    html::before {
-        content: '';
-        position: fixed; inset: 0; z-index: 2147483646;
-        background: #0a0f18;
-    }
-    html::after {
-        content: '📱 กรุณาหมุนกลับแนวตั้ง';
-        position: fixed; top: 50%; left: 50%; z-index: 2147483647;
-        transform: translate(-50%, -50%);
-        color: #F5F5F7; font-size: 1.1rem; font-weight: 700;
-        white-space: nowrap;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-}
-
-/* ── MOBILE ────────────────────────────────────────────────── */
 @media (max-width: 768px) {
     html, body { margin: 0 !important; padding: 0 !important; overflow-x: hidden !important; }
     .block-container, [data-testid="block-container"] {
@@ -433,7 +416,7 @@ body.dark-mode .gm-card-label   { color: #FFFFFF !important; text-shadow: 0 1px 
     .gm-header-title { font-size: 1.75rem !important; }
     [data-testid="stTabs"] button[role="tab"] { font-size: 0.75rem !important; padding: 7px 8px !important; }
 }
-
+</style>
 """
 _GLOBAL_CSS = _GLOBAL_CSS.replace('body.dark-mode', 'body')
 st.markdown(_GLOBAL_CSS, unsafe_allow_html=True)
@@ -583,16 +566,23 @@ _stc.html("""
     });
   }
   function fixBg(){
-    ['[data-testid="stApp"]','[data-testid="stAppViewContainer"]','[data-testid="stMain"]',
-     '[data-testid="block-container"]','[data-testid="stVerticalBlock"]','.block-container','section.main'
-    ].forEach(function(sel){ d.querySelectorAll(sel).forEach(function(el){ el.style.setProperty('background','transparent','important'); el.style.setProperty('background-color','transparent','important'); }); });
+    var selectors = [
+      '[data-testid="stApp"]','[data-testid="stAppViewContainer"]',
+      '[data-testid="stMain"]','[data-testid="stMainBlockContainer"]',
+      '[data-testid="stVerticalBlock"]','.block-container','section.main'
+    ];
+    selectors.forEach(function(sel){
+      d.querySelectorAll(sel).forEach(function(el){
+        el.style.setProperty('background','transparent','important');
+        el.style.setProperty('background-color','transparent','important');
+      });
+    });
+    d.documentElement.style.setProperty('background-color','#0a0f18','important');
+    d.body.style.setProperty('background-color','#0a0f18','important');
   }
   function stackCols(){
-    // ใช้ขนาดหน้าจอจริง (screen) ไม่ใช่ viewport ปัจจุบัน
-    // เพื่อให้ detect "มือถือ" ได้ทั้งแนวตั้งและแนวนอน
     var screenMin = Math.min(w.screen.width, w.screen.height);
-    if(screenMin > 768) return;  // ไม่ใช่มือถือ → ข้าม
-    // มือถือ → บังคับ column layout เสมอ ไม่ว่าจะหมุนยังไง
+    if(screenMin > 768) return;
     d.querySelectorAll('[data-testid="stHorizontalBlock"]').forEach(function(blk){
       blk.style.setProperty('display','flex','important'); blk.style.setProperty('flex-direction','column','important');
       blk.style.setProperty('align-items','stretch','important'); blk.style.setProperty('width','100%','important');
@@ -609,6 +599,10 @@ _stc.html("""
 </script>
 """, height=0, scrolling=False)
 
+
+# ══════════════════════════════════════════════════════════════════
+# UTILS
+# ══════════════════════════════════════════════════════════════════
 
 def sanitize_ticker(raw: str) -> str:
     return re.sub(r"[^A-Z0-9.\-]", "", str(raw).upper().strip())
@@ -661,6 +655,8 @@ def favorite_button_label(ticker):
     sign = "+" if pct >= 0 else ""
     return f"{ticker}\n{dot} {price_str}  {sign}{pct:.1f}%"
 
+
+# ── [CODE 1] load_stock_history — รองรับหุ้น IPO ใหม่ ─────────────
 @st.cache_data(ttl=300)
 def load_stock_history(ticker):
     """ลอง period สั้น→ยาว รองรับหุ้น IPO ใหม่ที่มีข้อมูลน้อย"""
@@ -671,7 +667,7 @@ def load_stock_history(ticker):
             df = ticker_obj.history(period=period)
             if df is not None and not df.empty:
                 best_df = df
-                if len(df) >= 200:
+                if len(df) >= 60:
                     return df
         except Exception:
             continue
@@ -686,12 +682,18 @@ def load_stock_history(ticker):
             pass
     return best_df
 
+
 @st.cache_data(ttl=300)
 def load_stock_info(ticker):
     try:
         return yf.Ticker(ticker).info or {}
     except Exception:
         return {}
+
+
+# ══════════════════════════════════════════════════════════════════
+# TECHNICAL CALCULATIONS
+# ══════════════════════════════════════════════════════════════════
 
 def calc_pivot_points(df: pd.DataFrame) -> dict:
     prev  = df.iloc[-2] if len(df) >= 2 else df.iloc[-1]
@@ -715,18 +717,43 @@ def calc_fibonacci(df: pd.DataFrame, lookback: int = 60) -> dict:
         "Fib 0%":    low,
     }
 
-FIB_DESCRIPTIONS = {
-    "Fib 100%":  ("🏔️ จุดสูงสุด (Swing High)",       "แนวต้านสูงสุด — ถ้าทะลุได้ Momentum แรงมาก ให้ Buy Breakout"),
-    "Fib 78.6%": ("🛡️ แนวป้องกันสุดท้าย",            "ถ้าหลุดเตรียมคัต — ย่อลึกมากแสดงว่า Buyer อ่อนแรงแล้ว"),
-    "Fib 61.8%": ("🥇 โซนสะสมไม้หลัก (Golden Ratio)", "Risk/Reward คุ้มที่สุด — สถาบันนิยมรอซื้อโซนนี้ เหมาะสะสมระยะกลาง-ยาว"),
-    "Fib 50.0%": ("🥈 จุดกลาง Swing",                "แนวรับปานกลาง — ซื้อได้ แต่ Stop Loss ใกล้กว่าโซน 61.8%"),
-    "Fib 38.2%": ("🥉 แนวรับตื้น",                   "เหมาะเล่นสั้นเด้งไว — ถ้าหลุดรอโซน 50% หรือ 61.8% แทน"),
-    "Fib 23.6%": ("⚡ Shallow Pullback",              "ย่อน้อยมาก แสดงว่า Momentum แรง — ซื้อ Dip แต่ Stop แน่น"),
-    "Fib 0%":    ("⚠️ จุดต่ำสุด (Swing Low)",         "ถ้าหลุดนี้ Breakdown — เตรียมคัทสถานะทันที อย่ารีบ Average Down"),
-}
+def calculate_indicators(df: pd.DataFrame):
+    close = df["Close"]
+    delta = close.diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.ewm(com=13, min_periods=14, adjust=False).mean()
+    avg_loss = loss.ewm(com=13, min_periods=14, adjust=False).mean()
+    rsi = 100 - (100 / (1 + (avg_gain / avg_loss)))
+    sma20  = close.rolling(20).mean()
+    sma50  = close.rolling(50).mean()
+    sma200 = close.rolling(200).mean()
+    ema20  = close.ewm(span=20,  adjust=False).mean()
+    ema50  = close.ewm(span=50,  adjust=False).mean()
+    ema200 = close.ewm(span=200, adjust=False).mean()
+    true_range = pd.concat([
+        df["High"] - df["Low"],
+        (df["High"] - close.shift()).abs(),
+        (df["Low"]  - close.shift()).abs(),
+    ], axis=1).max(axis=1)
+    atr14 = true_range.ewm(com=13, min_periods=14, adjust=False).mean()
+    ema12 = close.ewm(span=12, adjust=False).mean()
+    ema26 = close.ewm(span=26, adjust=False).mean()
+    macd_line   = ema12 - ema26
+    signal_line = macd_line.ewm(span=9, adjust=False).mean()
+    macd_hist   = macd_line - signal_line
+    return {
+        "rsi": rsi, "sma20": sma20, "sma50": sma50, "sma200": sma200,
+        "ema20": ema20, "ema50": ema50, "ema200": ema200,
+        "atr14": atr14, "macd_line": macd_line, "signal_line": signal_line, "macd_hist": macd_hist,
+    }
+
+
+# ══════════════════════════════════════════════════════════════════
+# [CODE 1] FIBONACCI TABLE — Glass-morphism Cards
+# ══════════════════════════════════════════════════════════════════
 
 def render_fib_table(fibs: dict, current_price: float, atr: float):
-    """Fibonacci 7 ระดับ — กรอบ glass-morphism เหมือน SMA/EMA cards"""
     FIB_ORDER  = ["Fib 100%","Fib 78.6%","Fib 61.8%","Fib 50.0%","Fib 38.2%","Fib 23.6%","Fib 0%"]
     FIB_ACCENT = {
         "Fib 100%":  {"border":"#CE93D8","bg":"rgba(206,147,216,0.08)","glow":"rgba(206,147,216,0.25)"},
@@ -785,41 +812,16 @@ def render_fib_table(fibs: dict, current_price: float, atr: float):
   <div style="font-size:0.72rem;margin-bottom:2px;color:{role_color};font-weight:700;">{role_main}</div>
   <div style="font-size:0.64rem;color:rgba(235,235,245,0.38);">{role_action}</div>
 </div>"""
-    st.markdown(f'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,155px),1fr));gap:10px;margin:8px 0 14px;">{cards_html}</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,155px),1fr));gap:10px;margin:8px 0 14px;">{cards_html}</div>',
+        unsafe_allow_html=True
+    )
     st.caption("📐 Swing High/Low ย้อนหลัง 60 วัน  ·  📍 ราคาอยู่ใกล้ (< ½ ATR)  ·  🥇 Golden Ratio 61.8% = โซนที่ดีที่สุด")
 
 
-def calculate_indicators(df: pd.DataFrame):
-    close = df["Close"]
-    delta = close.diff()
-    gain = delta.where(delta > 0, 0)
-    loss = -delta.where(delta < 0, 0)
-    avg_gain = gain.ewm(com=13, min_periods=14, adjust=False).mean()
-    avg_loss = loss.ewm(com=13, min_periods=14, adjust=False).mean()
-    rsi = 100 - (100 / (1 + (avg_gain / avg_loss)))
-    sma21  = close.rolling(21).mean()
-    sma50  = close.rolling(50).mean()
-    sma200 = close.rolling(200).mean()
-    ema21  = close.ewm(span=21,  adjust=False).mean()
-    ema50  = close.ewm(span=50,  adjust=False).mean()
-    ema200 = close.ewm(span=200, adjust=False).mean()
-    true_range = pd.concat([
-        df["High"] - df["Low"],
-        (df["High"] - close.shift()).abs(),
-        (df["Low"]  - close.shift()).abs(),
-    ], axis=1).max(axis=1)
-    atr14 = true_range.ewm(com=13, min_periods=14, adjust=False).mean()
-    ema12 = close.ewm(span=12, adjust=False).mean()
-    ema26 = close.ewm(span=26, adjust=False).mean()
-    macd_line   = ema12 - ema26
-    signal_line = macd_line.ewm(span=9, adjust=False).mean()
-    macd_hist   = macd_line - signal_line
-    return {
-        "rsi": rsi, "sma21": sma21, "sma50": sma50, "sma200": sma200,
-        "ema21": ema21, "ema50": ema50, "ema200": ema200,
-        "atr14": atr14, "macd_line": macd_line, "signal_line": signal_line, "macd_hist": macd_hist,
-    }
-
+# ══════════════════════════════════════════════════════════════════
+# [CODE 1] ROCKET CHART — แนวรับ-ต้านแบบกราฟสวย
+# ══════════════════════════════════════════════════════════════════
 
 def render_custom_sr_chart(ticker, df, current_price, r2, r1, s1, s2, rsi_value):
     fig = go.Figure()
@@ -858,6 +860,10 @@ def render_custom_sr_chart(ticker, df, current_price, r2, r1, s1, s2, rsi_value)
     st.plotly_chart(fig, use_container_width=True)
     st.caption("📐 **แนวรับ-ต้าน คำนวณจาก Pivot Points (Floor Trader)**  |  PP = (H+L+C)÷3  |  R1=2×PP−L  R2=PP+(H−L)  |  S1=2×PP−H  S2=PP−(H−L)")
 
+
+# ══════════════════════════════════════════════════════════════════
+# INDICATOR RENDERS
+# ══════════════════════════════════════════════════════════════════
 
 def ma_metric(col, label, ma_value, price):
     if ma_value is None or pd.isna(ma_value):
@@ -915,12 +921,17 @@ def _style_signal_html(label: str, color: str, bg: str) -> str:
             f'padding:3px 12px;font-weight:700;font-size:0.92rem;">{label}</span>')
 
 
+# ══════════════════════════════════════════════════════════════════
+# TRADING STYLE (Swing ใช้ render_fib_table จาก Code 1)
+# ══════════════════════════════════════════════════════════════════
+
 def render_trading_style(price, atr, pivots, fibs, values):
     st.markdown("### 🧠 สไตล์การเล่นหุ้น — เลือกให้ตรงนิสัย")
     sma50=values.get("sma50"); sma200=values.get("sma200")
-    ema21=values.get("ema21"); ema50=values.get("ema50"); ema200=values.get("ema200")
+    ema20=values.get("ema20"); ema50=values.get("ema50"); ema200=values.get("ema200")
     rsi=values.get("rsi"); macd=values.get("macd"); signal=values.get("signal"); hist=values.get("macd_hist")
 
+    # 1. DAY TRADE
     with st.expander("⚡ Day Trade — เล่นสั้นมาก จบในวัน (ใช้ Pivot)", expanded=False):
         st.markdown('<p style="color:#888;font-size:0.92rem;margin-top:-6px;">เกาะระดับ Pivot เปิดเช้า ปิดก่อนเย็น ไม่ค้างคืน</p>', unsafe_allow_html=True)
         pp=pivots.get("PP"); r1=pivots.get("R1"); r2=pivots.get("R2"); r3=pivots.get("R3")
@@ -949,6 +960,7 @@ def render_trading_style(price, atr, pivots, fibs, values):
         else:
             st.warning("ไม่มีข้อมูล Pivot Points")
 
+    # 2. SWING TRADE — ใช้ render_fib_table แบบ Card จาก Code 1
     with st.expander("🌊 Swing Trade — เล่นเป็นรอบ ย่อซื้อ-เด้งขาย (ใช้ Fibo)", expanded=False):
         st.markdown('<p style="color:#888;font-size:0.92rem;margin-top:-6px;">ซื้อตอนราคาย่อลงมาหา Fibo แล้วรอ Bounce ขึ้น</p>', unsafe_allow_html=True)
         if fibs:
@@ -968,7 +980,8 @@ def render_trading_style(price, atr, pivots, fibs, values):
         else:
             st.warning("ข้อมูล Fibonacci ไม่เพียงพอ")
 
-    with st.expander("🏔️ Trend Follow — ถือยาวๆ กินคำโต (ใช้ SMA 21/50/200)", expanded=False):
+    # 3. TREND FOLLOW
+    with st.expander("🏔️ Trend Follow — ถือยาวๆ กินคำโต (ใช้ SMA 20/50/200)", expanded=False):
         st.markdown('<p style="color:#888;font-size:0.92rem;margin-top:-6px;">ซื้อตอน Golden Cross ถือตราบที่เส้นยังเรียงลำดับ ขายตอน Death Cross</p>', unsafe_allow_html=True)
         sma_ok=sma50 is not None and not pd.isna(sma50); sma200_ok=sma200 is not None and not pd.isna(sma200)
         if sma_ok and sma200_ok:
@@ -986,18 +999,19 @@ def render_trading_style(price, atr, pivots, fibs, values):
         else:
             st.warning("ข้อมูลไม่เพียงพอ")
 
-    with st.expander("🚀 Momentum — เกาะรถซิ่ง (ใช้ EMA 21/50/200 + MACD + RSI)", expanded=False):
+    # 4. MOMENTUM
+    with st.expander("🚀 Momentum — เกาะรถซิ่ง (ใช้ EMA 20/50/200 + MACD + RSI)", expanded=False):
         st.markdown('<p style="color:#888;font-size:0.92rem;margin-top:-6px;">เข้าตอน EMA เรียงตัว + MACD บวก + RSI เกิน 50</p>', unsafe_allow_html=True)
-        ema_ok=ema21 is not None and not pd.isna(ema21) and ema50 is not None and not pd.isna(ema50)
+        ema_ok=ema20 is not None and not pd.isna(ema20) and ema50 is not None and not pd.isna(ema50)
         ema200_ok=ema200 is not None and not pd.isna(ema200)
         rsi_ok=rsi is not None and not pd.isna(rsi)
         macd_ok=macd is not None and not pd.isna(macd) and signal is not None and not pd.isna(signal)
         score=0; checks=[]
         if ema_ok:
-            if price>ema21: score+=1; checks.append(("✅","ราคา > EMA21 — Short-term momentum บวก"))
-            else: checks.append(("❌","ราคา < EMA21 — Short-term momentum ลบ"))
-            if ema21>ema50: score+=1; checks.append(("✅","EMA21 > EMA50 — Mid-term momentum บวก"))
-            else: checks.append(("❌","EMA21 < EMA50 — Mid-term momentum ลบ"))
+            if price>ema20: score+=1; checks.append(("✅","ราคา > EMA20 — Short-term momentum บวก"))
+            else: checks.append(("❌","ราคา < EMA20 — Short-term momentum ลบ"))
+            if ema20>ema50: score+=1; checks.append(("✅","EMA20 > EMA50 — Mid-term momentum บวก"))
+            else: checks.append(("❌","EMA20 < EMA50 — Mid-term momentum ลบ"))
         if ema200_ok:
             if ema50 is not None and not pd.isna(ema50) and ema50>ema200: score+=1; checks.append(("✅","EMA50 > EMA200 — Long-term momentum บวก"))
             else: checks.append(("❌","EMA50 < EMA200 — Long-term momentum ลบ"))
@@ -1018,30 +1032,61 @@ def render_trading_style(price, atr, pivots, fibs, values):
         for icon,txt in checks: st.markdown(f"{icon} {txt}")
         if ema_ok and ema200_ok:
             st.markdown(""); ce1,ce2,ce3=st.columns(3)
-            ce1.metric("EMA 21",f"{ema21:.2f}",f"{'↑' if price>ema21 else '↓'} {abs(price-ema21):.2f}")
+            ce1.metric("EMA 20",f"{ema20:.2f}",f"{'↑' if price>ema20 else '↓'} {abs(price-ema20):.2f}")
             ce2.metric("EMA 50",f"{ema50:.2f}",f"{'↑' if price>ema50 else '↓'} {abs(price-ema50):.2f}")
             ce3.metric("EMA 200",f"{ema200:.2f}",f"{'↑' if price>ema200 else '↓'} {abs(price-ema200):.2f}")
 
 
-def render_chart(df, indicators, pivots, fibs):
+# ══════════════════════════════════════════════════════════════════
+# CHART — [CODE 1] Dual Mode: Rocket + Advanced
+# ══════════════════════════════════════════════════════════════════
+
+def render_chart(df, indicators, pivots, fibs, target_stock, current_price, current_rsi):
+    """เลือกโหมดกราฟ: Rocket (แนวรับ-ต้านสวย) หรือ Advanced (Candle + MACD)"""
+    _cm_key = f"chart_mode_{target_stock}"
+    if _cm_key not in st.session_state:
+        st.session_state[_cm_key] = "rocket"
+
+    _cm1, _cm2 = st.columns(2)
+    if _cm1.button("💜 กราฟแนวรับ-ต้าน (Rocket)", use_container_width=True,
+                   type="primary" if st.session_state[_cm_key] == "rocket" else "secondary",
+                   key=f"cm_rocket_{target_stock}"):
+        st.session_state[_cm_key] = "rocket"
+    if _cm2.button("📊 กราฟเชิงลึก (Advanced)", use_container_width=True,
+                   type="primary" if st.session_state[_cm_key] == "advanced" else "secondary",
+                   key=f"cm_advanced_{target_stock}"):
+        st.session_state[_cm_key] = "advanced"
+    st.markdown("")
+
+    if st.session_state[_cm_key] == "rocket":
+        render_custom_sr_chart(target_stock, df.tail(120), current_price,
+                               pivots.get('R2'), pivots.get('R1'),
+                               pivots.get('S1'), pivots.get('S2'), current_rsi)
+    else:
+        _render_advanced_chart(df, indicators, pivots, fibs)
+
+
+def _render_advanced_chart(df, indicators, pivots, fibs):
+    """กราฟ Candlestick + Volume + MACD พร้อม Layer Selector"""
     st.caption("🎛️ เลือกชั้นที่ต้องการแสดง:")
     gc1,gc2,gc3,gc4,gc5,gc6=st.columns(6)
-    show_sma21=gc1.checkbox("🟠 SMA 21",value=True,key="ch_sma21")
+    show_sma20=gc1.checkbox("🟠 SMA 20",value=True,key="ch_sma20")
     show_ma_mid=gc2.checkbox("🔵🔴 SMA 50/200",value=True,key="ch_sma_mid")
-    show_ema21=gc3.checkbox("🟡 EMA 21",value=True,key="ch_ema21")
+    show_ema20=gc3.checkbox("🟡 EMA 20",value=True,key="ch_ema20")
     show_ema=gc4.checkbox("🟢🟣 EMA 50/200",value=True,key="ch_ema")
     show_pivot=gc5.checkbox("📌 Pivot Points",value=True,key="ch_pivot")
     show_fib=gc6.checkbox("🌀 Fibonacci",value=False,key="ch_fib")
+
     fig=make_subplots(rows=3,cols=1,shared_xaxes=True,row_heights=[0.55,0.2,0.25],vertical_spacing=0.04,
         subplot_titles=("ราคา + Pivot + Fibonacci","Volume","MACD (12,26,9)"))
     fig.add_trace(go.Candlestick(x=df.index,open=df["Open"],high=df["High"],low=df["Low"],close=df["Close"],
         name="ราคา",increasing_line_color="#00897B",increasing_fillcolor="#26a69a",
         decreasing_line_color="#C62828",decreasing_fillcolor="#ef5350"),row=1,col=1)
-    if show_sma21: fig.add_trace(go.Scatter(x=df.index,y=indicators["sma21"],name="SMA 21",line=dict(color="#FFA726",width=1.2)),row=1,col=1)
+    if show_sma20: fig.add_trace(go.Scatter(x=df.index,y=indicators["sma20"],name="SMA 20",line=dict(color="#FFA726",width=1.2)),row=1,col=1)
     if show_ma_mid:
         fig.add_trace(go.Scatter(x=df.index,y=indicators["sma50"],name="SMA 50",line=dict(color="#29B6F6",width=2.2)),row=1,col=1)
         fig.add_trace(go.Scatter(x=df.index,y=indicators["sma200"],name="SMA 200",line=dict(color="#FF5252",width=3.0)),row=1,col=1)
-    if show_ema21: fig.add_trace(go.Scatter(x=df.index,y=indicators["ema21"],name="EMA 21",line=dict(color="#FFD740",width=1.5,dash="dot")),row=1,col=1)
+    if show_ema20: fig.add_trace(go.Scatter(x=df.index,y=indicators["ema20"],name="EMA 20",line=dict(color="#FFD740",width=1.5,dash="dot")),row=1,col=1)
     if show_ema:
         fig.add_trace(go.Scatter(x=df.index,y=indicators["ema50"],name="EMA 50",line=dict(color="#69F0AE",width=1.8,dash="dash")),row=1,col=1)
         fig.add_trace(go.Scatter(x=df.index,y=indicators["ema200"],name="EMA 200",line=dict(color="#CE93D8",width=2.8,dash="dashdot")),row=1,col=1)
@@ -1075,13 +1120,17 @@ def render_chart(df, indicators, pivots, fibs):
     st.plotly_chart(fig,use_container_width=True)
     st.caption("คำอธิบายเส้น:")
     lg1,lg2,lg3,lg4,lg5,lg6=st.columns(6)
-    lg1.markdown("🟠 **SMA 21** — ส้ม ทึบบาง\n21 วัน ระยะสั้น")
+    lg1.markdown("🟠 **SMA 20** — ส้ม ทึบบาง\n20 วัน ระยะสั้น")
     lg2.markdown("🔵 **SMA 50** — ฟ้า ทึบ\n50 วัน ระยะกลาง")
     lg3.markdown("🔴 **SMA 200** — แดง ทึบหนา\n200 วัน ระยะยาว")
-    lg4.markdown("🟡 **EMA 21** — เหลือง จุด\n21 วัน ถ่วงน้ำหนัก")
+    lg4.markdown("🟡 **EMA 20** — เหลือง จุด\n20 วัน ถ่วงน้ำหนัก")
     lg5.markdown("🟢 **EMA 50** — เขียว ประ\n50 วัน ถ่วงน้ำหนัก")
     lg6.markdown("🟣 **EMA 200** — ม่วง ประยาว\n200 วัน ถ่วงน้ำหนัก")
 
+
+# ══════════════════════════════════════════════════════════════════
+# FINANCIALS
+# ══════════════════════════════════════════════════════════════════
 
 def render_financials(info, current_price):
     sector=info.get("sector","N/A"); industry=info.get("industry","N/A")
@@ -1107,9 +1156,14 @@ def render_financials(info, current_price):
     a3.metric("จำนวนนักวิเคราะห์",str(analyst_count) if analyst_count is not None else "N/A")
 
 
+# ══════════════════════════════════════════════════════════════════
+# SUPPORT & RESISTANCE (Fibo Tab ใช้ render_fib_table จาก Code 1)
+# ══════════════════════════════════════════════════════════════════
+
 def render_support_resistance(current_price, current_atr, pivots, fibs, values):
     st.caption("หมายเหตุ: แนวรับจาก SMA/EMA จะแสดงเฉพาะเส้นที่อยู่ใต้ราคา ส่วนแนวต้านจะแสดงเฉพาะเส้นที่อยู่เหนือราคาปัจจุบัน")
     sr_t1,sr_t2,sr_t3,sr_t4,sr_t5,sr_t6=st.tabs(["📌 Pivot Points","🌀 Fibonacci","🟢 SMA แนวรับ","🔴 SMA แนวต้าน","🟢 EMA แนวรับ","🔴 EMA แนวต้าน"])
+
     with sr_t1:
         st.markdown('<span style="background:rgba(99,102,241,0.15);color:#6366F1;border-radius:8px;padding:3px 12px;font-weight:700;font-size:0.88rem;">⚡ เหมาะ Day Trade — เล่นสั้นจบในวัน</span>', unsafe_allow_html=True)
         st.caption("คำนวณจาก: PP = (High + Low + Close) ÷ 3 ของวันก่อนหน้า  |  R/S = สูตร Floor Trader Pivot มาตรฐาน")
@@ -1124,26 +1178,32 @@ def render_support_resistance(current_price, current_atr, pivots, fibs, values):
         pc3.metric("แนวต้านที่ 1 (R1)",f"{pivots['R1']:.2f}",f"{((current_price-pivots['R1'])/current_price*100):+.1f}%")
         pc3.metric("แนวต้านที่ 2 (R2)",f"{pivots['R2']:.2f}",f"{((current_price-pivots['R2'])/current_price*100):+.1f}%")
         pc3.metric("แนวต้านแข็งแกร่ง (R3)",f"{pivots['R3']:.2f}",f"{((current_price-pivots['R3'])/current_price*100):+.1f}%")
+
+    # ── Fibonacci Tab — ใช้ Card UI จาก Code 1 ───────────────────
     with sr_t2:
         st.markdown('<span style="background:rgba(34,197,94,0.15);color:#16a34a;border-radius:8px;padding:3px 12px;font-weight:700;font-size:0.88rem;">🌊 เหมาะ Swing Trade — ย่อซื้อ เด้งขาย</span>', unsafe_allow_html=True)
         st.caption("คำนวณจาก: Swing High และ Swing Low ของราคาย้อนหลัง 60 วัน  |  ระดับ 0% / 23.6% / 38.2% / 50% / 61.8% / 78.6% / 100%")
         render_fib_table(fibs, current_price, current_atr)
+
     with sr_t3:
         st.markdown('<span style="background:rgba(59,130,246,0.15);color:#2563eb;border-radius:8px;padding:3px 12px;font-weight:700;font-size:0.88rem;">🏔️ เหมาะ Trend Follow — ถือยาว ไม่หลุดเทรนด์ไม่ขาย</span>', unsafe_allow_html=True)
         st.caption(f"แสดงเฉพาะเส้นใต้ราคา {current_price:.2f}")
-        render_ma_levels([("SMA 21",values["sma21"]),("SMA 50",values["sma50"]),("SMA 200",values["sma200"])],current_price,current_atr,"support")
+        render_ma_levels([("SMA 20",values["sma20"]),("SMA 50",values["sma50"]),("SMA 200",values["sma200"])],current_price,current_atr,"support")
+
     with sr_t4:
         st.markdown('<span style="background:rgba(59,130,246,0.15);color:#2563eb;border-radius:8px;padding:3px 12px;font-weight:700;font-size:0.88rem;">🏔️ เหมาะ Trend Follow — รู้แนวต้านก่อนเพิ่มสถานะ</span>', unsafe_allow_html=True)
         st.caption(f"แสดงเฉพาะเส้นเหนือราคา {current_price:.2f}")
-        render_ma_levels([("SMA 21",values["sma21"]),("SMA 50",values["sma50"]),("SMA 200",values["sma200"])],current_price,current_atr,"resistance")
+        render_ma_levels([("SMA 20",values["sma20"]),("SMA 50",values["sma50"]),("SMA 200",values["sma200"])],current_price,current_atr,"resistance")
+
     with sr_t5:
         st.markdown('<span style="background:rgba(245,158,11,0.15);color:#d97706;border-radius:8px;padding:3px 12px;font-weight:700;font-size:0.88rem;">🚀 เหมาะ Momentum — เกาะรถซิ่ง ซื้อตอนวิ่งแรง</span>', unsafe_allow_html=True)
         st.caption(f"แสดงเฉพาะเส้นใต้ราคา {current_price:.2f}")
-        render_ma_levels([("EMA 21",values["ema21"]),("EMA 50",values["ema50"]),("EMA 200",values["ema200"])],current_price,current_atr,"support")
+        render_ma_levels([("EMA 20",values["ema20"]),("EMA 50",values["ema50"]),("EMA 200",values["ema200"])],current_price,current_atr,"support")
+
     with sr_t6:
         st.markdown('<span style="background:rgba(245,158,11,0.15);color:#d97706;border-radius:8px;padding:3px 12px;font-weight:700;font-size:0.88rem;">🚀 เหมาะ Momentum — รู้แนวต้าน EMA ก่อนโดดขึ้นรถ</span>', unsafe_allow_html=True)
         st.caption(f"แสดงเฉพาะเส้นเหนือราคา {current_price:.2f}")
-        render_ma_levels([("EMA 21",values["ema21"]),("EMA 50",values["ema50"]),("EMA 200",values["ema200"])],current_price,current_atr,"resistance")
+        render_ma_levels([("EMA 20",values["ema20"]),("EMA 50",values["ema50"]),("EMA 200",values["ema200"])],current_price,current_atr,"resistance")
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -1157,7 +1217,7 @@ if "current_stock" not in st.session_state: st.session_state.current_stock = ""
 if "market"        not in st.session_state: st.session_state.market        = "foreign"
 if "quick_pick"    not in st.session_state: st.session_state.quick_pick    = ""
 if "show_gainers"  not in st.session_state: st.session_state.show_gainers  = False
-if "should_scroll" not in st.session_state: st.session_state.should_scroll = False
+
 
 # ══════════════════════════════════════════════════════════════════
 # HEADER
@@ -1185,7 +1245,6 @@ if favorites:
             st.session_state.search_box    = favorite
             st.session_state.auto_scan     = True
             st.session_state.show_gainers  = False
-            st.session_state.should_scroll = True
             st.rerun()
 else:
     fav_cols[0].info("ยังไม่มีหุ้นปักหมุด")
@@ -1279,7 +1338,6 @@ if st.session_state.show_gainers:
                         st.session_state.search_box    = _g["ticker"]
                         st.session_state.auto_scan     = True
                         st.session_state.show_gainers  = False
-                        st.session_state.should_scroll = True
                         st.rerun()
 
 is_thai = st.session_state.market == "thai"
@@ -1301,7 +1359,6 @@ for _qcol, _qt in zip(_qcols, quick_tickers):
         st.session_state.quick_pick    = _qt
         st.session_state.auto_scan     = True
         st.session_state.show_gainers  = False
-        st.session_state.should_scroll = True
         st.rerun()
 
 # ── Search input + scan button ────────────────────────────────────
@@ -1323,7 +1380,6 @@ if is_thai and _raw and not _raw.upper().endswith(".BK"):
 else:
     target_stock = _raw
 
-# Enter key: Streamlit rerun เมื่อพิมพ์ใหม่ → trigger scan อัตโนมัติ
 _enter_triggered = (
     bool(_typed)
     and not scan_btn
@@ -1333,7 +1389,6 @@ _enter_triggered = (
 
 if (scan_btn or auto_scan or _enter_triggered) and target_stock:
     st.session_state.current_stock = target_stock
-    st.session_state.should_scroll = True
 
 show_analysis = bool(target_stock) and (
     scan_btn or auto_scan or _enter_triggered
@@ -1347,9 +1402,7 @@ show_analysis = bool(target_stock) and (
 if show_analysis:
     st.markdown('<div id="gm-result-anchor" style="scroll-margin-top:16px;"></div>', unsafe_allow_html=True)
 
-    # Scroll — ใส่ nonce (timestamp นาโนวินาที) ให้ Streamlit ไม่ cache JS
-    if st.session_state.should_scroll:
-        st.session_state.should_scroll = False
+    if scan_btn or auto_scan or _enter_triggered:
         _nonce = _time.time_ns()
         _stc.html(f"""
 <script>
@@ -1391,10 +1444,10 @@ if show_analysis:
                 pivots = calc_pivot_points(df)
                 fibs   = calc_fibonacci(df, lookback=60)
                 values = {
-                    "sma21":  indicators["sma21"].iloc[-1],
+                    "sma20":  indicators["sma20"].iloc[-1],
                     "sma50":  indicators["sma50"].iloc[-1],
                     "sma200": indicators["sma200"].iloc[-1] if not pd.isna(indicators["sma200"].iloc[-1]) else None,
-                    "ema21":  indicators["ema21"].iloc[-1],
+                    "ema20":  indicators["ema20"].iloc[-1],
                     "ema50":  indicators["ema50"].iloc[-1],
                     "ema200": indicators["ema200"].iloc[-1],
                     "rsi":    current_rsi, "macd": current_macd, "signal": current_signal,
@@ -1497,31 +1550,23 @@ if show_analysis:
                             f'<span style="font-size:1.05rem;font-weight:900;">{sym}{abs(pct):.1f}%</span>'
                             f'<span style="font-size:0.82rem;font-weight:800;">{trend}</span></span>')
 
-                _badges="".join([_ma_badge("SMA 21",values["sma21"]),_ma_badge("SMA 50",values["sma50"]),
-                                  _ma_badge("SMA 200",values["sma200"]),_ma_badge("EMA 21",values["ema21"]),
+                _badges="".join([_ma_badge("SMA 20",values["sma20"]),_ma_badge("SMA 50",values["sma50"]),
+                                  _ma_badge("SMA 200",values["sma200"]),_ma_badge("EMA 20",values["ema20"]),
                                   _ma_badge("EMA 50",values["ema50"]),_ma_badge("EMA 200",values["ema200"])])
                 st.markdown(f'<div style="display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 4px 0;">{_badges}</div>', unsafe_allow_html=True)
 
                 st.markdown("<br>", unsafe_allow_html=True)
-                tab_chart,tab_company,tab_sr,tab_style,tab_news=st.tabs(["📈 กราฟ","🏢 บริษัท","🎯 แนวรับ-ต้าน","🧠 สไตล์","📰 กล่องข่าว"])
+
+                # ── [CODE 1] 5 Tabs รวม กล่องข่าว ──────────────────
+                tab_chart, tab_company, tab_sr, tab_style, tab_news = st.tabs([
+                    "📈 กราฟ", "🏢 บริษัท", "🎯 แนวรับ-ต้าน", "🧠 สไตล์", "📰 กล่องข่าว"
+                ])
 
                 with tab_chart:
                     try:
-                        _cm_key=f"chart_mode_{target_stock}"
-                        if _cm_key not in st.session_state: st.session_state[_cm_key]="rocket"
-                        _cm1,_cm2=st.columns(2)
-                        if _cm1.button("💜 กราฟแนวรับ-ต้าน (Rocket)",use_container_width=True,
-                                       type="primary" if st.session_state[_cm_key]=="rocket" else "secondary",key=f"cm_rocket_{target_stock}"):
-                            st.session_state[_cm_key]="rocket"
-                        if _cm2.button("📊 กราฟเชิงลึก (Advanced)",use_container_width=True,
-                                       type="primary" if st.session_state[_cm_key]=="advanced" else "secondary",key=f"cm_advanced_{target_stock}"):
-                            st.session_state[_cm_key]="advanced"
-                        st.markdown("")
-                        if st.session_state[_cm_key]=="rocket":
-                            render_custom_sr_chart(target_stock,df.tail(120),current_price,
-                                pivots.get('R2'),pivots.get('R1'),pivots.get('S1'),pivots.get('S2'),current_rsi)
-                        else:
-                            render_chart(df,indicators,pivots,fibs)
+                        # ส่ง target_stock, current_price, current_rsi เพื่อรองรับ Dual Mode
+                        render_chart(df, indicators, pivots, fibs,
+                                     target_stock, current_price, current_rsi)
                     except Exception as exc:
                         print(traceback.format_exc()); st.error("กราฟแสดงผลไม่ได้ชั่วคราว"); st.caption(str(exc))
 
@@ -1540,25 +1585,28 @@ if show_analysis:
                     except Exception as exc:
                         print(traceback.format_exc()); st.error("สไตล์การเล่นแสดงผลไม่ได้ชั่วคราว"); st.caption(str(exc))
 
+                # ── [CODE 1] กล่องข่าว ────────────────────────────
                 with tab_news:
                     try:
                         st.markdown("### 📰 ข่าวล่าสุด")
                         st.caption("แปลหัวข่าวเป็นภาษาไทยอัตโนมัติ — กดการ์ดเพื่อเปิดข่าวต้นฉบับ")
                         with st.spinner("กำลังดึงข่าวล่าสุด..."):
                             _news_items = fetch_stock_news(target_stock, max_items=8)
-                        if not _news_items: st.info("ไม่พบข่าวสำหรับหุ้นตัวนี้ในขณะนี้")
+                        if not _news_items:
+                            st.info("ไม่พบข่าวสำหรับหุ้นตัวนี้ในขณะนี้")
                         else:
                             for _ni in _news_items:
-                                try: _title_th=translate_to_thai(_ni["title"])
-                                except Exception: _title_th=_ni["title"]
-                                _pub_str=""
+                                try: _title_th = translate_to_thai(_ni["title"])
+                                except Exception: _title_th = _ni["title"]
+                                _pub_str = ""
                                 if _ni["published"]:
-                                    try: _pub_str=datetime.fromtimestamp(_ni["published"],tz=ZoneInfo("Asia/Bangkok")).strftime("%d/%m %H:%M")
+                                    try: _pub_str = datetime.fromtimestamp(_ni["published"], tz=ZoneInfo("Asia/Bangkok")).strftime("%d/%m %H:%M")
                                     except Exception: pass
-                                _meta="  ".join(filter(None,[_ni.get("publisher",""),_pub_str]))
+                                _meta = "  ".join(filter(None, [_ni.get("publisher",""), _pub_str]))
                                 st.markdown(f"""
 <a href="{_ni['link']}" target="_blank" style="text-decoration:none;">
-<div style="border:1px solid rgba(255,255,255,0.10);border-radius:14px;padding:12px 16px;margin:8px 0;cursor:pointer;">
+<div style="border:1px solid rgba(255,255,255,0.10);border-radius:14px;padding:12px 16px;margin:8px 0;cursor:pointer;
+     background:rgba(255,255,255,0.05);backdrop-filter:blur(16px);">
   <div style="font-size:0.70rem;color:rgba(235,235,245,0.38);margin-bottom:5px;">{_meta}</div>
   <div style="font-size:0.95rem;font-weight:700;color:#E5E5EA;line-height:1.45;">{_title_th}</div>
   <div style="font-size:0.72rem;color:rgba(235,235,245,0.30);margin-top:5px;font-style:italic;">{_ni['title']}</div>
